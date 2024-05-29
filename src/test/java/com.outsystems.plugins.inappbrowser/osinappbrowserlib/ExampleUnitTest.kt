@@ -1,4 +1,4 @@
-package organizationidplaceholder.libtemplateplaceholder
+package com.outsystems.plugins.inappbrowser.osinappbrowserlib
 
 import org.junit.Test
 
