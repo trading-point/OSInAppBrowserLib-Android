@@ -6,16 +6,22 @@ import org.junit.Test
 import org.junit.Assert.*
 
 class OSIABEngineTests {
+    private val url = "https://www.outsystems.com/"
+
     @Test
     fun test_open_externalBrowserWithoutIssues_doesOpenBrowser() {
         val url = "https://www.outsystems.com/"
-        assertTrue(makeSUT(shouldOpenBrowser = true).openExternalBrowser(url))
+        makeSUT(true).openExternalBrowser(url) { result ->
+            assertTrue(result)
+        }
     }
 
     @Test
     fun test_open_externalBrowserWithIssues_doesNotOpenBrowser() {
         val url = "https://www.outsystems.com/"
-        assertFalse(makeSUT(shouldOpenBrowser = false).openExternalBrowser(url))
+        makeSUT(false).openExternalBrowser(url) { result ->
+            assertFalse(result)
+        }
     }
 
     private fun makeSUT(shouldOpenBrowser: Boolean): OSIABEngine {

@@ -1,10 +1,10 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib
 
-interface OSIABRouter {
+interface OSIABRouter<ReturnType> {
     /**
-     * Opens the passed `url` in the default browser.
+     * Handles opening the passed `url`.
      * @param url URL to be opened.
-     * @return Indicates if the operation was successful or not.
+     * @param completionHandler The callback with the result of opening the url.
      */
-    fun openInBrowser(url: String): Boolean
+    fun handleOpen(url: String, completionHandler: (ReturnType) -> Unit)
 }
