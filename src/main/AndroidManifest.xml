@@ -33,7 +33,7 @@
             android:name=".views.OSIABWebViewActivityNew"
             android:exported="false"
             android:label="OSIABWebViewActivityNew"
-            android:theme="@style/Theme.AppCompat" />
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

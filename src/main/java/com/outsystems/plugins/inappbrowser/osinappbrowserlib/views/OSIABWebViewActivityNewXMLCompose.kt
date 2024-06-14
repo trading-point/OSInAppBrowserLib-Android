@@ -12,20 +12,14 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
-import android.widget.ImageButton
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.R
 
 class OSIABWebViewActivityNew : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var closeButton: Button
-    private lateinit var backButton: ImageButton
-    private lateinit var forwardButton: ImageButton
-    private lateinit var urlText: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,9 +30,6 @@ class OSIABWebViewActivityNew : AppCompatActivity() {
 
         webView = findViewById(R.id.webview)
         closeButton = findViewById(R.id.close_button)
-        backButton = findViewById(R.id.back_button)
-        forwardButton = findViewById(R.id.forward_button)
-        urlText = findViewById(R.id.url_text)
 
         setupWebView()
 
@@ -48,20 +39,9 @@ class OSIABWebViewActivityNew : AppCompatActivity() {
 
         closeButton.setOnClickListener {
             webView.destroy()
+            //Toast.makeText(this, "WebView Closed", Toast.LENGTH_SHORT).show()
             finish()
         }
-        closeButton.text = "Close"
-
-        backButton.setOnClickListener {
-            if (webView.canGoBack()) webView.goBack()
-        }
-
-        forwardButton.setOnClickListener {
-            if (webView.canGoForward()) webView.goForward()
-        }
-
-        urlText.text = urlToOpen
-
     }
 
     private fun setupWebView() {
