@@ -149,8 +149,7 @@ class OSIABWebViewActivityNew : AppCompatActivity() {
             webView.goBack()
         } else {
             webView.destroy()
-            //Toast.makeText(this, "WebView Closed", Toast.LENGTH_SHORT).show()
-            super.onBackPressed()
+            super.onBackPressedDispatcher.onBackPressed()
         }
     }
 
