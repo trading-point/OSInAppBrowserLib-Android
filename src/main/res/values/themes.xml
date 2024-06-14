@@ -7,4 +7,9 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
+    <style name="AppTheme.WebViewToolbar" parent="ThemeOverlay.AppCompat.ActionBar">
+        <item name="color">#282828</item>
+    </style>
+
 </resources>

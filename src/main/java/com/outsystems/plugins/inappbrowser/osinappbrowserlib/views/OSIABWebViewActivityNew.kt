@@ -69,6 +69,10 @@ class OSIABWebViewActivityNew : AppCompatActivity() {
         //webView.settings.domStorageEnabled = true
         webView.settings.loadWithOverviewMode = true
         webView.settings.useWideViewPort = true
+
+        //zoom, this should be optional based on a parameter
+        webView.settings.builtInZoomControls = true
+
         //webView.settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
 
         // Enable debugging for the WebView
@@ -121,6 +125,7 @@ class OSIABWebViewActivityNew : AppCompatActivity() {
                     }
                     urlString.startsWith("http:") || urlString.startsWith("https:") -> {
                         view?.loadUrl(urlString)
+                        urlText.text = urlString
                         true
                     }
                     else -> false
@@ -129,7 +134,6 @@ class OSIABWebViewActivityNew : AppCompatActivity() {
 
             override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
                 super.onReceivedError(view, request, error)
-                //Toast.makeText(this@OSIABWebViewActivityNew, "Failed to load the page", Toast.LENGTH_SHORT).show()
             }
         }
 

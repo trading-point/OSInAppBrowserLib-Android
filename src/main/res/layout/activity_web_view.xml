@@ -69,7 +69,7 @@
         android:layout_height="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar">
+        android:theme="@style/AppTheme.WebViewToolbar">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -85,7 +85,7 @@
                 android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"
                 android:paddingEnd="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless" />
+                android:background="@null" />
 
             <!-- Forward button -->
             <ImageButton
@@ -98,7 +98,7 @@
                 android:layout_centerVertical="true"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:background="?attr/selectableItemBackgroundBorderless" />
+                android:background="@null" />
 
             <!-- URL text -->
             <TextView
@@ -110,7 +110,7 @@
                 android:layout_centerVertical="true"
                 android:ellipsize="end"
                 android:maxLines="1"
-                android:textColor="@color/navigation_button_light"
+                android:textColor="@color/navigation_button_dark_theme"
                 android:singleLine="true"
                 android:scrollHorizontally="true" />
 
