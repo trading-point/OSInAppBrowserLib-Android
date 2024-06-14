@@ -3,6 +3,7 @@ package com.outsystems.plugins.inappbrowser.osinappbrowserlib
 import android.app.Activity
 import android.content.Intent
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.views.OSIABWebViewActivity
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.views.OSIABWebViewActivityNew
 
 class OSIABEngine(private val router: OSIABRouter<Boolean>) {
 
@@ -29,7 +30,7 @@ class OSIABEngine(private val router: OSIABRouter<Boolean>) {
     fun openWebView(activity: Activity, url: String, completionHandler: (Boolean) -> Unit) {
         activity.startActivityForResult(
             Intent(
-                activity, OSIABWebViewActivity::class.java
+                activity, /*OSIABWebViewActivity::class.java*/OSIABWebViewActivityNew::class.java
             ).putExtra(WEB_VIEW_URL_EXTRA, url), OPEN_WEB_VIEW_REQUEST_CODE
         )
     }
