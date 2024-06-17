@@ -1,23 +1,24 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib.views
 
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.ConsoleMessage
+import android.webkit.CookieManager
+import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
-import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
-import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.WindowCompat
+import androidx.core.view.isVisible
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.R
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
 
 class OSIABWebViewActivityNew : AppCompatActivity() {
 
@@ -26,22 +27,42 @@ class OSIABWebViewActivityNew : AppCompatActivity() {
     private lateinit var backButton: ImageButton
     private lateinit var forwardButton: ImageButton
     private lateinit var urlText: TextView
+    private lateinit var toolbar: Toolbar
+    private lateinit var options: OSIABWebViewOptions
+
+    companion object {
+        const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
+        const val WEB_VIEW_OPTIONS_EXTRA = "WEB_VIEW_OPTIONS_EXTRA"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val urlToOpen = intent.extras?.getString(OSIABWebViewActivity.WEB_VIEW_URL_EXTRA)
+        // get parameters from intent extras
+        val urlToOpen = intent.extras?.getString(WEB_VIEW_URL_EXTRA)
+        options = intent.extras?.getSerializable(WEB_VIEW_OPTIONS_EXTRA) as OSIABWebViewOptions
 
         setContentView(R.layout.activity_web_view)
 
+        //get elements in screen
         webView = findViewById(R.id.webview)
         closeButton = findViewById(R.id.close_button)
         backButton = findViewById(R.id.back_button)
         forwardButton = findViewById(R.id.forward_button)
         urlText = findViewById(R.id.url_text)
+        toolbar = findViewById(R.id.toolbar)
+
+        // setup elements in screen
+        closeButton.text = options.closeButtonText
+        urlText.text = urlToOpen
+        toolbar.isVisible = options.showToolbar
+
+        // clear cache if necessary
+        possiblyClearCacheOrSessionCookies()
+        // enable third party cookies
+        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
 
         setupWebView()
-
         if (urlToOpen != null) {
             webView.loadUrl(urlToOpen)
         }
@@ -50,7 +71,6 @@ class OSIABWebViewActivityNew : AppCompatActivity() {
             webView.destroy()
             finish()
         }
-        closeButton.text = "Close"
 
         backButton.setOnClickListener {
             if (webView.canGoBack()) webView.goBack()
@@ -60,28 +80,42 @@ class OSIABWebViewActivityNew : AppCompatActivity() {
             if (webView.canGoForward()) webView.goForward()
         }
 
-        urlText.text = urlToOpen
-
     }
 
+    override fun onPause() {
+        super.onPause()
+        if (options.pauseMedia) {
+            webView.onPause()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (options.pauseMedia) {
+            webView.onResume()
+        }
+    }
+
+
+    /**
+     * Responsible for setting up the WebView that shows the URL.
+     * It also deals with URLs that are opened withing the WebView.
+     */
     private fun setupWebView() {
         webView.settings.javaScriptEnabled = true
-        //webView.settings.domStorageEnabled = true
+        webView.settings.domStorageEnabled = true
         webView.settings.loadWithOverviewMode = true
         webView.settings.useWideViewPort = true
 
-        //zoom, this should be optional based on a parameter
-        webView.settings.builtInZoomControls = true
-
-        //webView.settings.mixedContentMode = WebSettings.MIXED_CONTENT_ALWAYS_ALLOW
-
-        // Enable debugging for the WebView
-        //WebView.setWebContentsDebuggingEnabled(true)
+        // get webView settings that come from options
+        webView.settings.builtInZoomControls = options.allowZoom
+        webView.settings.mediaPlaybackRequiresUserGesture = false
 
         webView.webViewClient = object : WebViewClient() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
-                //Toast.makeText(this@OSIABWebViewActivityNew, "Page Loaded", Toast.LENGTH_SHORT).show()
+                // store cookies after page finishes loading
+                CookieManager.getInstance().flush()
             }
 
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
@@ -149,11 +183,24 @@ class OSIABWebViewActivityNew : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        if (webView.canGoBack()) {
+        if (options.hardwareBack && webView.canGoBack()) {
             webView.goBack()
         } else {
             webView.destroy()
             super.onBackPressedDispatcher.onBackPressed()
+        }
+    }
+
+    /**
+     * Clears the WebView cache and removes all cookies if 'clearCache' parameter is 'true'.
+     * If not, then if 'clearSessionCache' is true, removes the session cookies.
+     */
+    private fun possiblyClearCacheOrSessionCookies() {
+        if (options.clearCache) {
+            webView.clearCache(true)
+            CookieManager.getInstance().removeAllCookies(null)
+        } else if (options.clearSessionCache) {
+            CookieManager.getInstance().removeSessionCookies(null)
         }
     }
 
