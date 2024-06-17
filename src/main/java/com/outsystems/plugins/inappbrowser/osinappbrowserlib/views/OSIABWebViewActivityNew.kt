@@ -5,7 +5,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.webkit.ConsoleMessage
 import android.webkit.CookieManager
-import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -96,13 +95,13 @@ class OSIABWebViewActivityNew : AppCompatActivity() {
         }
     }
 
-
     /**
      * Responsible for setting up the WebView that shows the URL.
      * It also deals with URLs that are opened withing the WebView.
      */
     private fun setupWebView() {
         webView.settings.javaScriptEnabled = true
+        webView.settings.javaScriptCanOpenWindowsAutomatically = true
         webView.settings.domStorageEnabled = true
         webView.settings.loadWithOverviewMode = true
         webView.settings.useWideViewPort = true

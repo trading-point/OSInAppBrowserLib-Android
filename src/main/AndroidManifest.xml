@@ -32,6 +32,7 @@
         <activity
             android:name=".views.OSIABWebViewActivityNew"
             android:exported="false"
+            android:configChanges="orientation|screenSize"
             android:label="OSIABWebViewActivityNew"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
