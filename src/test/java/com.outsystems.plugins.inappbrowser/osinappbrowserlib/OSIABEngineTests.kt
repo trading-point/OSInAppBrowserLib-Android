@@ -9,7 +9,6 @@ import org.junit.Assert.*
 class OSIABEngineTests {
     private val url = "https://www.outsystems.com/"
 
-    /*
     @Test
     fun test_open_externalBrowserWithoutIssues_doesOpenBrowser() {
         makeSUT(true).openExternalBrowser(url) { result ->
@@ -23,10 +22,7 @@ class OSIABEngineTests {
             assertFalse(result)
         }
     }
-    
-     */
 
-    /*
     @Test
     fun test_open_webViewWithoutIssues_doesOpenWebView() {
         makeSUT(true).openWebView(url) { result ->
@@ -34,17 +30,12 @@ class OSIABEngineTests {
         }
     }
 
-     */
-
-    /*
     @Test
     fun test_open_webViewWithIssues_doesNotWebView() {
         makeSUT(false).openWebView(url) { result ->
             assertFalse(result)
         }
     }
-
-     */
 
     private fun makeSUT(shouldOpenBrowser: Boolean): OSIABEngine {
         val externalBrowserRouterSpy = OSIABRouterSpy<Unit>(shouldOpenBrowser)
