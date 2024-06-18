@@ -27,13 +27,8 @@
         <activity
             android:name=".views.OSIABWebViewActivity"
             android:exported="false"
-            android:label="@string/title_activity_osiabweb_view"
-            android:theme="@style/Theme.InAppBrowserSampleApp" />
-        <activity
-            android:name=".views.OSIABWebViewActivityNew"
-            android:exported="false"
             android:configChanges="orientation|screenSize"
-            android:label="OSIABWebViewActivityNew"
+            android:label="OSIABWebViewActivity"
             android:theme="@style/AppTheme.NoActionBar" />
     </application>
 

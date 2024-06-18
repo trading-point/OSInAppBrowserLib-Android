@@ -1,6 +1,7 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib
 
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABRouterSpy
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
 import org.junit.Test
 
 import org.junit.Assert.*
@@ -10,7 +11,6 @@ class OSIABEngineTests {
 
     @Test
     fun test_open_externalBrowserWithoutIssues_doesOpenBrowser() {
-        val url = "https://www.outsystems.com/"
         makeSUT(true).openExternalBrowser(url) { result ->
             assertTrue(result)
         }
@@ -18,13 +18,28 @@ class OSIABEngineTests {
 
     @Test
     fun test_open_externalBrowserWithIssues_doesNotOpenBrowser() {
-        val url = "https://www.outsystems.com/"
         makeSUT(false).openExternalBrowser(url) { result ->
             assertFalse(result)
         }
     }
 
+    @Test
+    fun test_open_webViewWithoutIssues_doesOpenWebView() {
+        makeSUT(true).openWebView(url) { result ->
+            assertTrue(result)
+        }
+    }
+
+    @Test
+    fun test_open_webViewWithIssues_doesNotWebView() {
+        makeSUT(false).openWebView(url) { result ->
+            assertFalse(result)
+        }
+    }
+
     private fun makeSUT(shouldOpenBrowser: Boolean): OSIABEngine {
-        return OSIABEngine(OSIABRouterSpy(shouldOpenBrowser))
+        val externalBrowserRouterSpy = OSIABRouterSpy<Unit>(shouldOpenBrowser)
+        val webViewRouterSpy = OSIABRouterSpy<OSIABWebViewOptions>(shouldOpenBrowser)
+        return OSIABEngine(externalBrowserRouterSpy, webViewRouterSpy)
     }
 }
