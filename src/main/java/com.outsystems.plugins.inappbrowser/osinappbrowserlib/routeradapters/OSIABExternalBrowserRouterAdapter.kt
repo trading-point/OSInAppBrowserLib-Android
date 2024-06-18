@@ -6,6 +6,7 @@ import android.net.Uri
 import android.provider.Browser.EXTRA_APPLICATION_ID
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABRouter
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.canOpenURL
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEventListener
 
 class OSIABExternalBrowserRouterAdapter(private val context: Context) : OSIABRouter<Unit, Boolean> {
     override fun handleOpen(url: String, options: Unit?, completionHandler: (Boolean) -> Unit) {
@@ -23,4 +24,5 @@ class OSIABExternalBrowserRouterAdapter(private val context: Context) : OSIABRou
             completionHandler(false)
         }
     }
+
 }

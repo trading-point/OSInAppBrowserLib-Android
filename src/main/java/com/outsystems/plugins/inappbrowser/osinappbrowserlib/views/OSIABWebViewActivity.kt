@@ -15,6 +15,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.R
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEvents
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
 
 class OSIABWebViewActivity : AppCompatActivity() {
@@ -113,6 +114,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 super.onPageFinished(view, url)
                 // store cookies after page finishes loading
                 storeCookies()
+                sendBroadcast(Intent(OSIABEvents.ACTION_BROWSER_PAGE_LOADED))
             }
 
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {

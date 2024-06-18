@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEventListener
 
 class OSIABEngine(
     private val externalBrowserRouter: OSIABRouter<Unit, Boolean>,
@@ -27,6 +28,12 @@ class OSIABEngine(
      */
     fun openWebView(url: String, options: OSIABWebViewOptions? = null, completionHandler: (Boolean) -> Unit) {
         return webViewRouter.handleOpen(url, options, completionHandler)
+    }
+
+    fun addEventListener(listener: OSIABEventListener) {
+        if (webViewRouter is OSIABEventListenerManager) {
+            webViewRouter.addEventListener(listener)
+        }
     }
 }
 
