@@ -86,7 +86,6 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
-
 }
 
 repositories {
