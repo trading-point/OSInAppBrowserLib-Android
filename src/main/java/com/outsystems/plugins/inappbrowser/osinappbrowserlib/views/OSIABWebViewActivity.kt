@@ -57,7 +57,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         // clear cache if necessary
         possiblyClearCacheOrSessionCookies()
         // enable third party cookies
-        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
+        enableThirdPartyCookies()
 
         setupWebView()
         if (urlToOpen != null) {
@@ -112,12 +112,13 @@ class OSIABWebViewActivity : AppCompatActivity() {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 // store cookies after page finishes loading
-                CookieManager.getInstance().flush()
+                storeCookies()
             }
 
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                 val urlString = request?.url.toString()
                 return when {
+                    // handle tel: links opening the appropriate app
                     urlString.startsWith("tel:") -> {
                         val intent = Intent(Intent.ACTION_DIAL).apply {
                             data = Uri.parse(urlString)
@@ -125,6 +126,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                         startActivity(intent)
                         true
                     }
+                    // handle sms: links opening the appropriate app
                     urlString.startsWith("sms:") -> {
                         val intent = Intent(Intent.ACTION_SENDTO).apply {
                             data = Uri.parse(urlString)
@@ -132,6 +134,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                         startActivity(intent)
                         true
                     }
+                    // handle geo: links opening the appropriate app
                     urlString.startsWith("geo:") -> {
                         val intent = Intent(Intent.ACTION_VIEW).apply {
                             data = Uri.parse(urlString)
@@ -139,6 +142,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                         startActivity(intent)
                         true
                     }
+                    // handle mailto: links opening the appropriate app
                     urlString.startsWith("mailto:") -> {
                         val intent = Intent(Intent.ACTION_SENDTO).apply {
                             data = Uri.parse(urlString)
@@ -146,6 +150,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                         startActivity(intent)
                         true
                     }
+                    // handle Google Play store links opening the appropriate app
                     urlString.startsWith("https://play.google.com/store") || urlString.startsWith("market:") -> {
                         val intent = Intent(Intent.ACTION_VIEW).apply {
                             data = Uri.parse(urlString)
@@ -154,6 +159,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                         startActivity(intent)
                         true
                     }
+                    // handle every http and https link by loading it in the WebView
                     urlString.startsWith("http:") || urlString.startsWith("https:") -> {
                         view?.loadUrl(urlString)
                         urlText.text = urlString
@@ -164,12 +170,15 @@ class OSIABWebViewActivity : AppCompatActivity() {
             }
 
             override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
-                // this shows the default WebView error page
+                // show the default WebView error page
                 super.onReceivedError(view, request, error)
             }
         }
     }
 
+    /**
+     * Handle the back button press
+     */
     override fun onBackPressed() {
         if (options.hardwareBack && webView.canGoBack()) {
             webView.goBack()
@@ -190,6 +199,20 @@ class OSIABWebViewActivity : AppCompatActivity() {
         } else if (options.clearSessionCache) {
             CookieManager.getInstance().removeSessionCookies(null)
         }
+    }
+
+    /**
+     * Enables third party cookies using the CookieManager
+     */
+    private fun enableThirdPartyCookies() {
+        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
+    }
+
+    /**
+     * Stores cookies using the CookieManager
+     */
+    private fun storeCookies() {
+        CookieManager.getInstance().flush()
     }
 
 }
