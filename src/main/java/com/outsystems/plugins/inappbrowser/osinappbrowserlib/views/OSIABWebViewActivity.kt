@@ -182,68 +182,96 @@ class OSIABWebViewActivity : AppCompatActivity() {
         webView.webChromeClient = object : WebChromeClient() {
 
             override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
-                AlertDialog.Builder(this@OSIABWebViewActivity)
-                    .setTitle(appName)
-                    .setMessage(message)
-                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                        result?.confirm()
-                        dialog.dismiss()
-                    }
-                    .setOnDismissListener { dialog ->
-                        result?.cancel()
-                        dialog.dismiss()
-                    }
-                    .create()
-                    .show()
+                showAlertDialog(
+                    message = message,
+                    defaultValue = null,
+                    result = result,
+                    promptResult = null,
+                    hasNegativeButton = false,
+                    isPrompt = false
+                )
                 return true
             }
 
             override fun onJsConfirm(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
-                AlertDialog.Builder(this@OSIABWebViewActivity)
+                showAlertDialog(
+                    message = message,
+                    defaultValue = null,
+                    result = result,
+                    promptResult = null,
+                    hasNegativeButton = true,
+                    isPrompt = false
+                )
+                return true
+            }
+
+            override fun onJsPrompt(view: WebView?, url: String?, message: String?, defaultValue: String?, promptResult: JsPromptResult?): Boolean {
+                showAlertDialog(
+                    message = message,
+                    defaultValue = defaultValue,
+                    result = null,
+                    promptResult,
+                    hasNegativeButton = true,
+                    isPrompt = true
+                )
+                return true
+            }
+
+            private fun showAlertDialog(
+                message: String?,
+                defaultValue: String?,
+                result: JsResult?,
+                promptResult: JsPromptResult?,
+                hasNegativeButton: Boolean,
+                isPrompt: Boolean
+            ) {
+                val input = EditText(this@OSIABWebViewActivity)
+                val builder = AlertDialog.Builder(this@OSIABWebViewActivity)
                     .setTitle(appName)
                     .setMessage(message)
-                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
+
+                if (isPrompt) {
+                    input.setText(defaultValue)
+                    builder.setView(input)
+
+                    builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
+                        promptResult?.confirm(input.text.toString())
+                        dialog.dismiss()
+                    }
+
+                    builder.setOnDismissListener { dialog ->
+                        promptResult?.cancel()
+                        dialog.dismiss()
+                    }
+
+                    if (hasNegativeButton) {
+                        builder.setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                            promptResult?.cancel()
+                            dialog.dismiss()
+                        }
+                    }
+                } else {
+                    builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
                         result?.confirm()
                         dialog.dismiss()
                     }
-                    .setNegativeButton(android.R.string.cancel) { dialog, _ ->
-                        result?.cancel()
-                        dialog.dismiss()
-                    }
-                    .setOnDismissListener { dialog ->
-                        result?.cancel()
-                        dialog.dismiss()
-                    }
-                    .create()
-                    .show()
-                return true
-            }
 
-            override fun onJsPrompt(view: WebView?, url: String?, message: String?, defaultValue: String?, result: JsPromptResult?): Boolean {
-                val input = EditText(this@OSIABWebViewActivity)
-                input.setText(defaultValue)
+                    builder.setOnDismissListener { dialog ->
+                        result?.cancel()
+                        dialog.dismiss()
+                    }
 
-                AlertDialog.Builder(this@OSIABWebViewActivity)
-                    .setTitle(appName)
-                    .setMessage(message)
-                    .setView(input)
-                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
-                        result?.confirm(input.text.toString())
-                        dialog.dismiss()
+                    if (hasNegativeButton) {
+                        builder.setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                            result?.cancel()
+                            dialog.dismiss()
+                        }
                     }
-                    .setNegativeButton(android.R.string.cancel) { dialog, _ ->
-                        result?.cancel()
-                        dialog.dismiss()
-                    }
-                    .setOnDismissListener { dialog ->
-                        result?.cancel()
-                        dialog.dismiss()
-                    }
-                    .create()
-                    .show()
-                return true
+                }
+                builder.create().show()
             }
         }
+
 
     }
 
