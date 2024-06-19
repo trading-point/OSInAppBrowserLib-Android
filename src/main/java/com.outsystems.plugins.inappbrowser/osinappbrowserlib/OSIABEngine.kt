@@ -29,9 +29,21 @@ class OSIABEngine(
         return webViewRouter.handleOpen(url, options, completionHandler)
     }
 
+    /**
+     * Calls OSIABWebViewRouterAdapter to add an event listener
+     */
     fun addEventListener(listener: OSIABEventListener) {
         if (webViewRouter is OSIABEventListenerManager) {
             webViewRouter.addEventListener(listener)
+        }
+    }
+
+    /**
+     * Calls OSIABWebViewRouterAdapter to remove all event listeners
+     */
+    fun removeAllEventListeners() {
+        if (webViewRouter is OSIABEventListenerManager) {
+            webViewRouter.removeAllEventListeners()
         }
     }
 }

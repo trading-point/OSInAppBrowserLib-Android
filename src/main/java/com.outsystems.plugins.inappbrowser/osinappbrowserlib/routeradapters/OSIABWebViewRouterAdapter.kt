@@ -59,14 +59,31 @@ class OSIABWebViewRouterAdapter(private val context: Context) : OSIABRouter<OSIA
         }
     }
 
+    /**
+     * Adds instance of OSIABEventListener to list of listeners
+     * @param listener Event listener to add
+     */
     override fun addEventListener(listener: OSIABEventListener) {
         eventListeners.add(listener)
     }
 
+    /**
+     * Removes all event listeners from list
+     */
+    override fun removeAllEventListeners() {
+        eventListeners.clear()
+    }
+
+    /**
+     * Calls onBrowserPageLoaded() method of OSIABEventListener
+     */
     private fun notifyBrowserPageLoaded() {
         eventListeners.forEach { it.onBrowserPageLoaded() }
     }
 
+    /**
+     * Calls onBrowserFinished() method of OSIABEventListener
+     */
     private fun notifyBrowserFinished() {
         eventListeners.forEach { it.onBrowserFinished() }
     }

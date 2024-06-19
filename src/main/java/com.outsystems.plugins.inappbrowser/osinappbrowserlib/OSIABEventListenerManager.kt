@@ -4,4 +4,6 @@ interface OSIABEventListenerManager {
 
     fun addEventListener(listener: OSIABEventListener)
 
+    fun removeAllEventListeners()
+
 }
