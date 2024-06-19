@@ -1,14 +1,19 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib.views
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.CookieManager
+import android.webkit.JsPromptResult
+import android.webkit.JsResult
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
@@ -26,6 +31,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private lateinit var urlText: TextView
     private lateinit var toolbar: Toolbar
     private lateinit var options: OSIABWebViewOptions
+    private lateinit var appName: String
 
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
@@ -34,6 +40,8 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        appName = applicationInfo.loadLabel(packageManager).toString()
 
         // get parameters from intent extras
         val urlToOpen = intent.extras?.getString(WEB_VIEW_URL_EXTRA)
@@ -174,6 +182,73 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 super.onReceivedError(view, request, error)
             }
         }
+
+        webView.webChromeClient = object : WebChromeClient() {
+
+            override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
+                AlertDialog.Builder(this@OSIABWebViewActivity)
+                    .setTitle(appName)
+                    .setMessage(message)
+                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                        result?.confirm()
+                        dialog.dismiss()
+                    }
+                    .setOnDismissListener { dialog ->
+                        result?.cancel()
+                        dialog.dismiss()
+                    }
+                    .create()
+                    .show()
+                return true
+            }
+
+            override fun onJsConfirm(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
+                AlertDialog.Builder(this@OSIABWebViewActivity)
+                    .setTitle(appName)
+                    .setMessage(message)
+                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                        result?.confirm()
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                        result?.cancel()
+                        dialog.dismiss()
+                    }
+                    .setOnDismissListener { dialog ->
+                        result?.cancel()
+                        dialog.dismiss()
+                    }
+                    .create()
+                    .show()
+                return true
+            }
+
+            override fun onJsPrompt(view: WebView?, url: String?, message: String?, defaultValue: String?, result: JsPromptResult?): Boolean {
+                val input = EditText(this@OSIABWebViewActivity)
+                input.setText(defaultValue)
+
+                AlertDialog.Builder(this@OSIABWebViewActivity)
+                    .setTitle(appName)
+                    .setMessage(message)
+                    .setView(input)
+                    .setPositiveButton(android.R.string.ok) { dialog, _ ->
+                        result?.confirm(input.text.toString())
+                        dialog.dismiss()
+                    }
+                    .setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                        result?.cancel()
+                        dialog.dismiss()
+                    }
+                    .setOnDismissListener { dialog ->
+                        result?.cancel()
+                        dialog.dismiss()
+                    }
+                    .create()
+                    .show()
+                return true
+            }
+        }
+
     }
 
     /**
