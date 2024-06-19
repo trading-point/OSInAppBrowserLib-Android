@@ -116,7 +116,15 @@ class OSIABWebViewActivity : AppCompatActivity() {
         webView.settings.builtInZoomControls = options.allowZoom
         webView.settings.mediaPlaybackRequiresUserGesture = options.mediaPlaybackRequiresUserAction
 
-        webView.webViewClient = object : WebViewClient() {
+        // setup WebViewClient and WebChromeClient
+        webView.webViewClient = customWebViewClient()
+        webView.webChromeClient = customWebChromeClient()
+    }
+
+    private fun customWebViewClient(): WebViewClient {
+
+        val webViewClient = object : WebViewClient() {
+
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 // store cookies after page finishes loading
@@ -176,10 +184,17 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 }
                 startActivity(intent)
             }
-        }
 
-        // use WebChromeClient to handle JS events
-        webView.webChromeClient = object : WebChromeClient() {
+        }
+        return webViewClient
+    }
+
+    /**
+     * Use WebChromeClient to handle JS events
+     */
+    private fun customWebChromeClient(): WebChromeClient {
+
+        val webChromeClient = object : WebChromeClient() {
 
             override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
                 showAlertDialog(
@@ -217,6 +232,15 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 return true
             }
 
+            /**
+             * Responsible for showing an AlertDialog based on JS pop-up box data.
+             * @param message message for the dialog
+             * @param defaultValue when the JS pop-up is a prompt, contains the default text for the EditText
+             * @param result JsResult instance coming from an alert or confirm JS pop-up
+             * @param promptResult JsPromptResult instance coming from a prompt JS pop-up
+             * @param hasNegativeButton determines if a negative button should be shown
+             * @param isPrompt to determine if the AlertDialog should be have the structure of a prompt
+             */
             private fun showAlertDialog(
                 message: String?,
                 defaultValue: String?,
@@ -270,9 +294,9 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 }
                 builder.create().show()
             }
+
         }
-
-
+        return webChromeClient
     }
 
     /**
