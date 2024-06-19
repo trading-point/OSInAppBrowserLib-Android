@@ -131,19 +131,14 @@ class OSIABWebViewActivity : AppCompatActivity() {
                         launchIntent(Intent.ACTION_DIAL, urlString, false)
                         true
                     }
-                    // handle sms: links opening the appropriate app
-                    urlString.startsWith("sms:") -> {
+                    // handle sms: and mailto: links opening the appropriate app
+                    urlString.startsWith("sms:") || urlString.startsWith("mailto:") -> {
                         launchIntent(Intent.ACTION_SENDTO, urlString, false)
                         true
                     }
                     // handle geo: links opening the appropriate app
                     urlString.startsWith("geo:") -> {
                         launchIntent(Intent.ACTION_VIEW, urlString, false)
-                        true
-                    }
-                    // handle mailto: links opening the appropriate app
-                    urlString.startsWith("mailto:") -> {
-                        launchIntent(Intent.ACTION_SENDTO, urlString, false)
                         true
                     }
                     // handle Google Play Store links opening the appropriate app
