@@ -58,7 +58,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         toolbar = findViewById(R.id.toolbar)
 
         // setup elements in screen
-        closeButton.text = options.closeButtonText
+        closeButton.text = options.closeButtonText.ifBlank { "Close" }
         urlText.text = urlToOpen
         toolbar.isVisible = options.showToolbar
 
