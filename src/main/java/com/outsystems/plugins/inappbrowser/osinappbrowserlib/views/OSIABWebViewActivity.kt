@@ -121,6 +121,9 @@ class OSIABWebViewActivity : AppCompatActivity() {
         webView.webChromeClient = customWebChromeClient()
     }
 
+    /**
+     * Use WebViewClient to handle events on the WebView
+     */
     private fun customWebViewClient(): WebViewClient {
 
         val webViewClient = object : WebViewClient() {
