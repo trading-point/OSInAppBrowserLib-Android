@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
-import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEventListener
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.routeradapters.OSIABEventListener
 
 class OSIABEngine(
     private val externalBrowserRouter: OSIABRouter<Unit, Boolean>,

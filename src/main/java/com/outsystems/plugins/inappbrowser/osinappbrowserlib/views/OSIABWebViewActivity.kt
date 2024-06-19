@@ -27,8 +27,8 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var closeButton: Button
-    private lateinit var backButton: ImageButton
-    private lateinit var forwardButton: ImageButton
+    private lateinit var backNavigationButton: ImageButton
+    private lateinit var forwardNavigationButton: ImageButton
     private lateinit var urlText: TextView
     private lateinit var toolbar: Toolbar
     private lateinit var options: OSIABWebViewOptions
@@ -55,8 +55,8 @@ class OSIABWebViewActivity : AppCompatActivity() {
         //get elements in screen
         webView = findViewById(R.id.webview)
         closeButton = findViewById(R.id.close_button)
-        backButton = findViewById(R.id.back_button)
-        forwardButton = findViewById(R.id.forward_button)
+        backNavigationButton = findViewById(R.id.back_button)
+        forwardNavigationButton = findViewById(R.id.forward_button)
         urlText = findViewById(R.id.url_text)
         toolbar = findViewById(R.id.toolbar)
 
@@ -76,15 +76,16 @@ class OSIABWebViewActivity : AppCompatActivity() {
         }
 
         closeButton.setOnClickListener {
+            sendBroadcast(Intent(OSIABEvents.ACTION_BROWSER_FINISHED))
             webView.destroy()
             finish()
         }
 
-        backButton.setOnClickListener {
+        backNavigationButton.setOnClickListener {
             if (webView.canGoBack()) webView.goBack()
         }
 
-        forwardButton.setOnClickListener {
+        forwardNavigationButton.setOnClickListener {
             if (webView.canGoForward()) webView.goForward()
         }
 
@@ -132,13 +133,13 @@ class OSIABWebViewActivity : AppCompatActivity() {
         val webViewClient = object : WebViewClient() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
                 // store cookies after page finishes loading
                 storeCookies()
                 if (isFirstLoad) {
                     sendBroadcast(Intent(OSIABEvents.ACTION_BROWSER_PAGE_LOADED))
                     isFirstLoad = false
                 }
+                super.onPageFinished(view, url)
             }
 
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
@@ -316,6 +317,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         if (options.hardwareBack && webView.canGoBack()) {
             webView.goBack()
         } else {
+            sendBroadcast(Intent(OSIABEvents.ACTION_BROWSER_FINISHED))
             webView.destroy()
             super.onBackPressedDispatcher.onBackPressed()
         }

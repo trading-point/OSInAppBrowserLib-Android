@@ -7,7 +7,6 @@ import android.content.IntentFilter
 import android.os.Build
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEventListenerManager
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABRouter
-import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEventListener
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEvents
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.views.OSIABWebViewActivity
@@ -20,7 +19,7 @@ class OSIABWebViewRouterAdapter(private val context: Context) : OSIABRouter<OSIA
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 OSIABEvents.ACTION_BROWSER_PAGE_LOADED -> notifyBrowserPageLoaded()
-                OSIABEvents.ACTION_BROWSER_CLOSED -> notifyBrowserClosed()
+                OSIABEvents.ACTION_BROWSER_FINISHED -> notifyBrowserFinished()
             }
         }
     }
@@ -28,7 +27,7 @@ class OSIABWebViewRouterAdapter(private val context: Context) : OSIABRouter<OSIA
     init {
         val intentFilter = IntentFilter().apply {
             addAction(OSIABEvents.ACTION_BROWSER_PAGE_LOADED)
-            addAction(OSIABEvents.ACTION_BROWSER_CLOSED)
+            addAction(OSIABEvents.ACTION_BROWSER_FINISHED)
         }
         if (Build.VERSION.SDK_INT >= 33) {
             context.registerReceiver(broadcastReceiver, intentFilter, Context.RECEIVER_EXPORTED)
@@ -67,8 +66,8 @@ class OSIABWebViewRouterAdapter(private val context: Context) : OSIABRouter<OSIA
         eventListeners.forEach { it.onBrowserPageLoaded() }
     }
 
-    private fun notifyBrowserClosed() {
-        eventListeners.forEach { it.onBrowserClosed() }
+    private fun notifyBrowserFinished() {
+        eventListeners.forEach { it.onBrowserFinished() }
     }
 
 }

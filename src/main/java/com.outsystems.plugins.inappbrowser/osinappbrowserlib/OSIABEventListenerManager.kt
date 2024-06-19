@@ -1,6 +1,6 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib
 
-import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEventListener
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.routeradapters.OSIABEventListener
 
 interface OSIABEventListenerManager {
 
