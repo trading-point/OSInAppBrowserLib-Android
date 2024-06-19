@@ -9,7 +9,7 @@ data class OSIABWebViewOptions(
     @SerializedName("clearCache") val clearCache: Boolean = true,
     @SerializedName("clearSessionCache") val clearSessionCache: Boolean = true,
     @SerializedName("mediaPlaybackRequiresUserAction") val mediaPlaybackRequiresUserAction: Boolean = false,
-    @SerializedName("closeButtonText") val closeButtonText: String?,
+    @SerializedName("closeButtonText") val closeButtonText: String = "Close",
     @SerializedName("toolbarPosition") val toolbarPosition: OSIABToolbarPosition = OSIABToolbarPosition.TOP,
     @SerializedName("leftToRight") val leftToRight: Boolean = false,
     @SerializedName("showNavigationButtons") val showNavigationButtons: Boolean = true,

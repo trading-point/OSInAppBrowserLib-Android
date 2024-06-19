@@ -1,14 +1,19 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib.views
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.CookieManager
+import android.webkit.JsPromptResult
+import android.webkit.JsResult
+import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
@@ -27,6 +32,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private lateinit var urlText: TextView
     private lateinit var toolbar: Toolbar
     private lateinit var options: OSIABWebViewOptions
+    private lateinit var appName: String
     // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the WebView
     private var isFirstLoad = true
 
@@ -37,6 +43,8 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        appName = applicationInfo.loadLabel(packageManager).toString()
 
         // get parameters from intent extras
         val urlToOpen = intent.extras?.getString(WEB_VIEW_URL_EXTRA)
@@ -53,7 +61,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         toolbar = findViewById(R.id.toolbar)
 
         // setup elements in screen
-        closeButton.text = options.closeButtonText
+        closeButton.text = options.closeButtonText.ifBlank { "Close" }
         urlText.text = urlToOpen
         toolbar.isVisible = options.showToolbar
 
@@ -111,7 +119,18 @@ class OSIABWebViewActivity : AppCompatActivity() {
         webView.settings.builtInZoomControls = options.allowZoom
         webView.settings.mediaPlaybackRequiresUserGesture = options.mediaPlaybackRequiresUserAction
 
-        webView.webViewClient = object : WebViewClient() {
+        // setup WebViewClient and WebChromeClient
+        webView.webViewClient = customWebViewClient()
+        webView.webChromeClient = customWebChromeClient()
+    }
+
+    /**
+     * Use WebViewClient to handle events on the WebView
+     */
+    private fun customWebViewClient(): WebViewClient {
+
+        val webViewClient = object : WebViewClient() {
+
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 // store cookies after page finishes loading
@@ -127,43 +146,22 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 return when {
                     // handle tel: links opening the appropriate app
                     urlString.startsWith("tel:") -> {
-                        val intent = Intent(Intent.ACTION_DIAL).apply {
-                            data = Uri.parse(urlString)
-                        }
-                        startActivity(intent)
+                        launchIntent(Intent.ACTION_DIAL, urlString, false)
                         true
                     }
-                    // handle sms: links opening the appropriate app
-                    urlString.startsWith("sms:") -> {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse(urlString)
-                        }
-                        startActivity(intent)
+                    // handle sms: and mailto: links opening the appropriate app
+                    urlString.startsWith("sms:") || urlString.startsWith("mailto:") -> {
+                        launchIntent(Intent.ACTION_SENDTO, urlString, false)
                         true
                     }
                     // handle geo: links opening the appropriate app
                     urlString.startsWith("geo:") -> {
-                        val intent = Intent(Intent.ACTION_VIEW).apply {
-                            data = Uri.parse(urlString)
-                        }
-                        startActivity(intent)
+                        launchIntent(Intent.ACTION_VIEW, urlString, false)
                         true
                     }
-                    // handle mailto: links opening the appropriate app
-                    urlString.startsWith("mailto:") -> {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse(urlString)
-                        }
-                        startActivity(intent)
-                        true
-                    }
-                    // handle Google Play store links opening the appropriate app
+                    // handle Google Play Store links opening the appropriate app
                     urlString.startsWith("https://play.google.com/store") || urlString.startsWith("market:") -> {
-                        val intent = Intent(Intent.ACTION_VIEW).apply {
-                            data = Uri.parse(urlString)
-                            setPackage("com.android.vending")
-                        }
-                        startActivity(intent)
+                        launchIntent(Intent.ACTION_VIEW, urlString, true)
                         true
                     }
                     // handle every http and https link by loading it in the WebView
@@ -180,7 +178,135 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 // show the default WebView error page
                 super.onReceivedError(view, request, error)
             }
+
+            /**
+             * Responsible for handling and launching intents based on a URL.
+             * @param intentAction Action for the intent
+             * @param urlString URL to be processed
+             * @param isGooglePlayStore to determine if the URL is a Google Play Store link
+             */
+            private fun launchIntent(intentAction: String, urlString: String, isGooglePlayStore: Boolean) {
+                val intent = Intent(intentAction).apply {
+                    data = Uri.parse(urlString)
+                    if (isGooglePlayStore) {
+                        setPackage("com.android.vending")
+                    }
+                }
+                startActivity(intent)
+            }
+
         }
+        return webViewClient
+    }
+
+    /**
+     * Use WebChromeClient to handle JS events
+     */
+    private fun customWebChromeClient(): WebChromeClient {
+
+        val webChromeClient = object : WebChromeClient() {
+
+            override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
+                showAlertDialog(
+                    message = message,
+                    defaultValue = null,
+                    result = result,
+                    promptResult = null,
+                    hasNegativeButton = false,
+                    isPrompt = false
+                )
+                return true
+            }
+
+            override fun onJsConfirm(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
+                showAlertDialog(
+                    message = message,
+                    defaultValue = null,
+                    result = result,
+                    promptResult = null,
+                    hasNegativeButton = true,
+                    isPrompt = false
+                )
+                return true
+            }
+
+            override fun onJsPrompt(view: WebView?, url: String?, message: String?, defaultValue: String?, promptResult: JsPromptResult?): Boolean {
+                showAlertDialog(
+                    message = message,
+                    defaultValue = defaultValue,
+                    result = null,
+                    promptResult,
+                    hasNegativeButton = true,
+                    isPrompt = true
+                )
+                return true
+            }
+
+            /**
+             * Responsible for showing an AlertDialog based on JS pop-up box data.
+             * @param message message for the dialog
+             * @param defaultValue when the JS pop-up is a prompt, contains the default text for the EditText
+             * @param result JsResult instance coming from an alert or confirm JS pop-up
+             * @param promptResult JsPromptResult instance coming from a prompt JS pop-up
+             * @param hasNegativeButton determines if a negative button should be shown
+             * @param isPrompt to determine if the AlertDialog should be have the structure of a prompt
+             */
+            private fun showAlertDialog(
+                message: String?,
+                defaultValue: String?,
+                result: JsResult?,
+                promptResult: JsPromptResult?,
+                hasNegativeButton: Boolean,
+                isPrompt: Boolean
+            ) {
+                val builder = AlertDialog.Builder(this@OSIABWebViewActivity)
+                    .setTitle(appName)
+                    .setMessage(message)
+
+                if (isPrompt) {
+                    val input = EditText(this@OSIABWebViewActivity)
+                    input.setText(defaultValue)
+                    builder.setView(input)
+
+                    builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
+                        promptResult?.confirm(input.text.toString())
+                        dialog.dismiss()
+                    }
+
+                    builder.setOnDismissListener { dialog ->
+                        promptResult?.cancel()
+                        dialog.dismiss()
+                    }
+
+                    if (hasNegativeButton) {
+                        builder.setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                            promptResult?.cancel()
+                            dialog.dismiss()
+                        }
+                    }
+                } else {
+                    builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
+                        result?.confirm()
+                        dialog.dismiss()
+                    }
+
+                    builder.setOnDismissListener { dialog ->
+                        result?.cancel()
+                        dialog.dismiss()
+                    }
+
+                    if (hasNegativeButton) {
+                        builder.setNegativeButton(android.R.string.cancel) { dialog, _ ->
+                            result?.cancel()
+                            dialog.dismiss()
+                        }
+                    }
+                }
+                builder.create().show()
+            }
+
+        }
+        return webChromeClient
     }
 
     /**
