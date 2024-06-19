@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEventListener
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEventListenerManager
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABRouter
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEvents

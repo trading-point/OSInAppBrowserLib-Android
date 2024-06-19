@@ -1,4 +1,4 @@
-package com.outsystems.plugins.inappbrowser.osinappbrowserlib.routeradapters
+package com.outsystems.plugins.inappbrowser.osinappbrowserlib
 
 interface OSIABEventListener {
     fun onBrowserFinished()
