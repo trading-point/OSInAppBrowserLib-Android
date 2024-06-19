@@ -27,6 +27,8 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private lateinit var urlText: TextView
     private lateinit var toolbar: Toolbar
     private lateinit var options: OSIABWebViewOptions
+    // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the WebView
+    private var isFirstLoad = true
 
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
@@ -114,7 +116,10 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 super.onPageFinished(view, url)
                 // store cookies after page finishes loading
                 storeCookies()
-                sendBroadcast(Intent(OSIABEvents.ACTION_BROWSER_PAGE_LOADED))
+                if (isFirstLoad) {
+                    sendBroadcast(Intent(OSIABEvents.ACTION_BROWSER_PAGE_LOADED))
+                    isFirstLoad = false
+                }
             }
 
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
