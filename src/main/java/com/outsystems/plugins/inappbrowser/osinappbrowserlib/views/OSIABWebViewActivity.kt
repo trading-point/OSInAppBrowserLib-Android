@@ -183,6 +183,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
             }
         }
 
+        // use WebChromeClient to handle JS events
         webView.webChromeClient = object : WebChromeClient() {
 
             override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
