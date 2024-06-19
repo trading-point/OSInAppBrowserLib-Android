@@ -225,12 +225,12 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 hasNegativeButton: Boolean,
                 isPrompt: Boolean
             ) {
-                val input = EditText(this@OSIABWebViewActivity)
                 val builder = AlertDialog.Builder(this@OSIABWebViewActivity)
                     .setTitle(appName)
                     .setMessage(message)
 
                 if (isPrompt) {
+                    val input = EditText(this@OSIABWebViewActivity)
                     input.setText(defaultValue)
                     builder.setView(input)
 
