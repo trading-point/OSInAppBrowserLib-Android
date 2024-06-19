@@ -128,43 +128,27 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 return when {
                     // handle tel: links opening the appropriate app
                     urlString.startsWith("tel:") -> {
-                        val intent = Intent(Intent.ACTION_DIAL).apply {
-                            data = Uri.parse(urlString)
-                        }
-                        startActivity(intent)
+                        launchIntent(Intent.ACTION_DIAL, urlString, false)
                         true
                     }
                     // handle sms: links opening the appropriate app
                     urlString.startsWith("sms:") -> {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse(urlString)
-                        }
-                        startActivity(intent)
+                        launchIntent(Intent.ACTION_SENDTO, urlString, false)
                         true
                     }
                     // handle geo: links opening the appropriate app
                     urlString.startsWith("geo:") -> {
-                        val intent = Intent(Intent.ACTION_VIEW).apply {
-                            data = Uri.parse(urlString)
-                        }
-                        startActivity(intent)
+                        launchIntent(Intent.ACTION_VIEW, urlString, false)
                         true
                     }
                     // handle mailto: links opening the appropriate app
                     urlString.startsWith("mailto:") -> {
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse(urlString)
-                        }
-                        startActivity(intent)
+                        launchIntent(Intent.ACTION_SENDTO, urlString, false)
                         true
                     }
-                    // handle Google Play store links opening the appropriate app
+                    // handle Google Play Store links opening the appropriate app
                     urlString.startsWith("https://play.google.com/store") || urlString.startsWith("market:") -> {
-                        val intent = Intent(Intent.ACTION_VIEW).apply {
-                            data = Uri.parse(urlString)
-                            setPackage("com.android.vending")
-                        }
-                        startActivity(intent)
+                        launchIntent(Intent.ACTION_VIEW, urlString, true)
                         true
                     }
                     // handle every http and https link by loading it in the WebView
@@ -180,6 +164,22 @@ class OSIABWebViewActivity : AppCompatActivity() {
             override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
                 // show the default WebView error page
                 super.onReceivedError(view, request, error)
+            }
+
+            /**
+             * Responsible for handling and launching intents based on a URL.
+             * @param intentAction Action for the intent
+             * @param urlString URL to be processed
+             * @param isGooglePlayStore to determine if the URL is a Google Play Store link
+             */
+            private fun launchIntent(intentAction: String, urlString: String, isGooglePlayStore: Boolean) {
+                val intent = Intent(intentAction).apply {
+                    data = Uri.parse(urlString)
+                    if (isGooglePlayStore) {
+                        setPackage("com.android.vending")
+                    }
+                }
+                startActivity(intent)
             }
         }
 
