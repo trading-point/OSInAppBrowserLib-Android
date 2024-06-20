@@ -6,15 +6,15 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEventListener
-import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEventListenerManager
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABRouter
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEvents
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.views.OSIABWebViewActivity
 
-class OSIABWebViewRouterAdapter(private val context: Context) : OSIABRouter<OSIABWebViewOptions, Boolean>, OSIABEventListenerManager {
-
-    private val eventListeners = mutableListOf<OSIABEventListener>()
+class OSIABWebViewRouterAdapter(
+    private val context: Context,
+    private val listener: OSIABEventListener
+) : OSIABRouter<OSIABWebViewOptions, Boolean> {
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -35,9 +35,7 @@ class OSIABWebViewRouterAdapter(private val context: Context) : OSIABRouter<OSIA
         } else {
             context.registerReceiver(broadcastReceiver, intentFilter)
         }
-
     }
-
 
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
@@ -60,32 +58,17 @@ class OSIABWebViewRouterAdapter(private val context: Context) : OSIABRouter<OSIA
     }
 
     /**
-     * Adds instance of OSIABEventListener to list of listeners
-     * @param listener Event listener to add
-     */
-    override fun addEventListener(listener: OSIABEventListener) {
-        eventListeners.add(listener)
-    }
-
-    /**
-     * Removes all event listeners from list
-     */
-    override fun removeAllEventListeners() {
-        eventListeners.clear()
-    }
-
-    /**
      * Calls onBrowserPageLoaded() method of OSIABEventListener
      */
     private fun notifyBrowserPageLoaded() {
-        eventListeners.forEach { it.onBrowserPageLoaded() }
+        listener.onBrowserPageLoaded()
     }
 
     /**
      * Calls onBrowserFinished() method of OSIABEventListener
      */
     private fun notifyBrowserFinished() {
-        eventListeners.forEach { it.onBrowserFinished() }
+        listener.onBrowserFinished()
     }
 
 }
