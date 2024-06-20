@@ -147,23 +147,19 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 return when {
                     // handle tel: links opening the appropriate app
                     urlString.startsWith("tel:") -> {
-                        launchIntent(Intent.ACTION_DIAL, urlString, false)
-                        true
+                        launchIntent(Intent.ACTION_DIAL, urlString)
                     }
                     // handle sms: and mailto: links opening the appropriate app
                     urlString.startsWith("sms:") || urlString.startsWith("mailto:") -> {
-                        launchIntent(Intent.ACTION_SENDTO, urlString, false)
-                        true
+                        launchIntent(Intent.ACTION_SENDTO, urlString)
                     }
                     // handle geo: links opening the appropriate app
                     urlString.startsWith("geo:") -> {
-                        launchIntent(Intent.ACTION_VIEW, urlString, false)
-                        true
+                        launchIntent(Intent.ACTION_VIEW, urlString)
                     }
                     // handle Google Play Store links opening the appropriate app
                     urlString.startsWith("https://play.google.com/store") || urlString.startsWith("market:") -> {
                         launchIntent(Intent.ACTION_VIEW, urlString, true)
-                        true
                     }
                     // handle every http and https link by loading it in the WebView
                     urlString.startsWith("http:") || urlString.startsWith("https:") -> {
@@ -186,7 +182,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
              * @param urlString URL to be processed
              * @param isGooglePlayStore to determine if the URL is a Google Play Store link
              */
-            private fun launchIntent(intentAction: String, urlString: String, isGooglePlayStore: Boolean) {
+            private fun launchIntent(intentAction: String, urlString: String, isGooglePlayStore: Boolean = false): Boolean {
                 val intent = Intent(intentAction).apply {
                     data = Uri.parse(urlString)
                     if (isGooglePlayStore) {
@@ -194,8 +190,8 @@ class OSIABWebViewActivity : AppCompatActivity() {
                     }
                 }
                 startActivity(intent)
+                return true
             }
-
         }
         return webViewClient
     }
@@ -212,9 +208,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                     message = message,
                     defaultValue = null,
                     result = result,
-                    promptResult = null,
-                    hasNegativeButton = false,
-                    isPrompt = false
+                    hasNegativeButton = false
                 )
                 return true
             }
@@ -224,9 +218,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
                     message = message,
                     defaultValue = null,
                     result = result,
-                    promptResult = null,
-                    hasNegativeButton = true,
-                    isPrompt = false
                 )
                 return true
             }
@@ -235,9 +226,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 showAlertDialog(
                     message = message,
                     defaultValue = defaultValue,
-                    result = null,
-                    promptResult,
-                    hasNegativeButton = true,
+                    result = promptResult,
                     isPrompt = true
                 )
                 return true
@@ -247,18 +236,16 @@ class OSIABWebViewActivity : AppCompatActivity() {
              * Responsible for showing an AlertDialog based on JS pop-up box data.
              * @param message message for the dialog
              * @param defaultValue when the JS pop-up is a prompt, contains the default text for the EditText
-             * @param result JsResult instance coming from an alert or confirm JS pop-up
-             * @param promptResult JsPromptResult instance coming from a prompt JS pop-up
-             * @param hasNegativeButton determines if a negative button should be shown
+             * @param result JsResult coming from an alert or confirm JS pop-up, or JsPromptResult from prompt JS pop-up
              * @param isPrompt to determine if the AlertDialog should be have the structure of a prompt
+             * @param hasNegativeButton determines if a negative button should be shown
              */
             private fun showAlertDialog(
                 message: String?,
                 defaultValue: String?,
                 result: JsResult?,
-                promptResult: JsPromptResult?,
-                hasNegativeButton: Boolean,
-                isPrompt: Boolean
+                isPrompt: Boolean = false,
+                hasNegativeButton: Boolean = true
             ) {
                 val builder = AlertDialog.Builder(this@OSIABWebViewActivity)
                     .setTitle(appName)
@@ -269,19 +256,21 @@ class OSIABWebViewActivity : AppCompatActivity() {
                     input.setText(defaultValue)
                     builder.setView(input)
 
+                    result as JsPromptResult?
+
                     builder.setPositiveButton(android.R.string.ok) { dialog, _ ->
-                        promptResult?.confirm(input.text.toString())
+                        result?.confirm(input.text.toString())
                         dialog.dismiss()
                     }
 
                     builder.setOnDismissListener { dialog ->
-                        promptResult?.cancel()
+                        result?.cancel()
                         dialog.dismiss()
                     }
 
                     if (hasNegativeButton) {
                         builder.setNegativeButton(android.R.string.cancel) { dialog, _ ->
-                            promptResult?.cancel()
+                            result?.cancel()
                             dialog.dismiss()
                         }
                     }
