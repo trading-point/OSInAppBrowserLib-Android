@@ -36,15 +36,22 @@ class OSIABWebViewActivity : AppCompatActivity() {
     // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the WebView
     private var isFirstLoad = true
 
+    //callbackID
+    private var callbackID: String? = null
+
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
         const val WEB_VIEW_OPTIONS_EXTRA = "WEB_VIEW_OPTIONS_EXTRA"
+        const val CALLBACK_ID_EXTRA = "CALLBACK_ID_EXTRA"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         appName = applicationInfo.loadLabel(packageManager).toString()
+
+        //callbackID
+        callbackID = intent.extras?.getString(CALLBACK_ID_EXTRA)
 
         // get parameters from intent extras
         val urlToOpen = intent.extras?.getString(WEB_VIEW_URL_EXTRA)
@@ -76,7 +83,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         }
 
         closeButton.setOnClickListener {
-            sendBroadcast(Intent(OSIABEvents.ACTION_BROWSER_FINISHED))
+            sendWebViewEvent(OSIABEvents.ACTION_BROWSER_FINISHED)
             webView.destroy()
             finish()
         }
@@ -136,7 +143,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 // store cookies after page finishes loading
                 storeCookies()
                 if (isFirstLoad) {
-                    sendBroadcast(Intent(OSIABEvents.ACTION_BROWSER_PAGE_LOADED))
+                    sendWebViewEvent(OSIABEvents.ACTION_BROWSER_PAGE_LOADED)
                     isFirstLoad = false
                 }
                 super.onPageFinished(view, url)
@@ -306,7 +313,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         if (options.hardwareBack && webView.canGoBack()) {
             webView.goBack()
         } else {
-            sendBroadcast(Intent(OSIABEvents.ACTION_BROWSER_FINISHED))
+            sendWebViewEvent(OSIABEvents.ACTION_BROWSER_FINISHED)
             webView.destroy()
             super.onBackPressedDispatcher.onBackPressed()
         }
@@ -337,6 +344,14 @@ class OSIABWebViewActivity : AppCompatActivity() {
      */
     private fun storeCookies() {
         CookieManager.getInstance().flush()
+    }
+
+    private fun sendWebViewEvent(event: String) {
+        sendBroadcast(
+            Intent(event).apply {
+                callbackID?.let { putExtra(CALLBACK_ID_EXTRA, callbackID) }
+            }
+        )
     }
 
 }

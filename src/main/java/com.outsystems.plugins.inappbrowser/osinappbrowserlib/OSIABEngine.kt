@@ -17,7 +17,7 @@ class OSIABEngine(
      * @return Indicates if the operation was successful or not.
      */
     fun openExternalBrowser(url: String, completionHandler: (Boolean) -> Unit) {
-        return externalBrowserRouter.handleOpen(url, null, completionHandler)
+        return externalBrowserRouter.handleOpen(url, null, null, completionHandler)
     }
 
     /**
@@ -25,8 +25,8 @@ class OSIABEngine(
      * @param url URL to be opened.
      * @param completionHandler The callback with the result of opening the url using the WebView.
      */
-    fun openWebView(url: String, options: OSIABWebViewOptions? = null, completionHandler: (Boolean) -> Unit) {
-        return webViewRouter.handleOpen(url, options, completionHandler)
+    fun openWebView(url: String, options: OSIABWebViewOptions? = null, callbackID: String?, completionHandler: (Boolean) -> Unit) {
+        return webViewRouter.handleOpen(url, options, callbackID, completionHandler)
     }
 
 }

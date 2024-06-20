@@ -18,11 +18,20 @@ class OSIABWebViewRouterAdapter(
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+
+            val callbackID = intent?.extras?.getString(CALLBACK_ID_EXTRA)
+
             when (intent?.action) {
-                OSIABEvents.ACTION_BROWSER_PAGE_LOADED -> notifyBrowserPageLoaded()
-                OSIABEvents.ACTION_BROWSER_FINISHED -> notifyBrowserFinished()
+                OSIABEvents.ACTION_BROWSER_PAGE_LOADED -> notifyBrowserPageLoaded(callbackID)
+                OSIABEvents.ACTION_BROWSER_FINISHED -> notifyBrowserFinished(callbackID)
             }
         }
+    }
+
+    companion object {
+        const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
+        const val WEB_VIEW_OPTIONS_EXTRA = "WEB_VIEW_OPTIONS_EXTRA"
+        const val CALLBACK_ID_EXTRA = "CALLBACK_ID_EXTRA"
     }
 
     init {
@@ -37,11 +46,7 @@ class OSIABWebViewRouterAdapter(
         }
     }
 
-    companion object {
-        const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
-        const val WEB_VIEW_OPTIONS_EXTRA = "WEB_VIEW_OPTIONS_EXTRA"
-    }
-    override fun handleOpen(url: String, options: OSIABWebViewOptions?, completionHandler: (Boolean) -> Unit) {
+    override fun handleOpen(url: String, options: OSIABWebViewOptions?, callbackID: String?, completionHandler: (Boolean) -> Unit) {
         try {
             context.startActivity(
                 Intent(
@@ -49,6 +54,11 @@ class OSIABWebViewRouterAdapter(
                 ).apply {
                     putExtra(WEB_VIEW_URL_EXTRA, url)
                     putExtra(WEB_VIEW_OPTIONS_EXTRA, options)
+
+                    // put callbackID as extra
+                    callbackID?.let {
+                        putExtra(CALLBACK_ID_EXTRA, callbackID)
+                    }
                 }
             )
             completionHandler(true)
@@ -60,15 +70,15 @@ class OSIABWebViewRouterAdapter(
     /**
      * Calls onBrowserPageLoaded() method of OSIABEventListener
      */
-    private fun notifyBrowserPageLoaded() {
-        listener.onBrowserPageLoaded()
+    private fun notifyBrowserPageLoaded(callbackID: String?) {
+        listener.onBrowserPageLoaded(callbackID)
     }
 
     /**
      * Calls onBrowserFinished() method of OSIABEventListener
      */
-    private fun notifyBrowserFinished() {
-        listener.onBrowserFinished()
+    private fun notifyBrowserFinished(callbackID: String?) {
+        listener.onBrowserFinished(callbackID)
     }
 
 }
