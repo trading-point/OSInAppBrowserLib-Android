@@ -25,7 +25,7 @@ class OSIABEngine(
      * @param url URL to be opened.
      * @param completionHandler The callback with the result of opening the url using the WebView.
      */
-    fun openWebView(url: String, options: OSIABWebViewOptions? = null, callbackID: String?, completionHandler: (Boolean) -> Unit) {
+    fun openWebView(url: String, options: OSIABWebViewOptions? = null, callbackID: String? = null, completionHandler: (Boolean) -> Unit) {
         return webViewRouter.handleOpen(url, options, callbackID, completionHandler)
     }
 

@@ -36,7 +36,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
     // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the WebView
     private var isFirstLoad = true
 
-    //callbackID
+    // callbackID is optional, it will only be used for some usages of the library (e.g. Cordova)
     private var callbackID: String? = null
 
     companion object {
