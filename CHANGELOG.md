@@ -4,5 +4,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Features
+- Add browser evetns to `OpenInWebView` feature (https://outsystemsrd.atlassian.net/browse/RMET-3432).
 - Add `OpenInWebView` with current features and default UI (https://outsystemsrd.atlassian.net/browse/RMET-3426).
 - Add `OpenInExternalBrowser` (https://outsystemsrd.atlassian.net/browse/RMET-3422).
