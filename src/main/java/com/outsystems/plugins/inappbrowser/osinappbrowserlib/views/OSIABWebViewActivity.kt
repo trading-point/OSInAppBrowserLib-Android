@@ -1,16 +1,12 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib.views
 
-import android.Manifest
 import android.app.AlertDialog
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.CookieManager
-import android.webkit.GeolocationPermissions
 import android.webkit.JsPromptResult
 import android.webkit.JsResult
-import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -22,8 +18,6 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.R
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEvents
@@ -45,14 +39,10 @@ class OSIABWebViewActivity : AppCompatActivity() {
     // callbackID is optional, it will only be used for some usages of the library (e.g. Cordova)
     private var callbackID: String? = null
 
-    // for permissions
-    private var currentPermissionRequest: PermissionRequest? = null
-
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
         const val WEB_VIEW_OPTIONS_EXTRA = "WEB_VIEW_OPTIONS_EXTRA"
         const val CALLBACK_ID_EXTRA = "CALLBACK_ID_EXTRA"
-        const val REQUEST_CAMERA_MIC_PERMISSION = 451
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -222,19 +212,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
             // override any methods necessary
 
-            override fun onPermissionRequest(request: PermissionRequest?) {
-                request?.let {
-                    handlePermissionRequest(it)
-                }
-            }
-
-            override fun onGeolocationPermissionsShowPrompt(
-                origin: String?,
-                callback: GeolocationPermissions.Callback?
-            ) {
-                // implement permission request
-            }
-
         }
         return webChromeClient
     }
@@ -285,33 +262,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 callbackID?.let { putExtra(CALLBACK_ID_EXTRA, callbackID) }
             }
         )
-    }
-
-    private fun handlePermissionRequest(request: PermissionRequest) {
-        val permissions = request.resources
-        val permissionsNeeded = mutableListOf<String>()
-
-        if (permissions.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.CAMERA)
-            }
-        }
-
-        if (permissions.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.RECORD_AUDIO)
-            }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.MODIFY_AUDIO_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.MODIFY_AUDIO_SETTINGS)
-            }
-        }
-
-        if (permissionsNeeded.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, permissionsNeeded.toTypedArray(), REQUEST_CAMERA_MIC_PERMISSION)
-            currentPermissionRequest = request
-        } else {
-            request.grant(request.resources)
-        }
     }
 
 }
