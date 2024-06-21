@@ -19,9 +19,7 @@ class OSIABWebViewRouterAdapter(
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-
             val callbackID = intent?.extras?.getString(CALLBACK_ID_EXTRA)
-
             when (intent?.action) {
                 OSIABEvents.ACTION_BROWSER_PAGE_LOADED -> notifyBrowserPageLoaded(callbackID)
                 OSIABEvents.ACTION_BROWSER_FINISHED -> notifyBrowserFinished(callbackID)
