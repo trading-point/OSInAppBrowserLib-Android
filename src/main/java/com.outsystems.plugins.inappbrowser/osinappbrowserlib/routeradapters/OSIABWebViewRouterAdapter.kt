@@ -17,7 +17,6 @@ class OSIABWebViewRouterAdapter(
     private val listener: OSIABEventListener
 ) : OSIABRouter<OSIABWebViewOptions, Boolean>, OSIABEventManager {
 
-
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
 
@@ -56,8 +55,6 @@ class OSIABWebViewRouterAdapter(
                 ).apply {
                     putExtra(WEB_VIEW_URL_EXTRA, url)
                     putExtra(WEB_VIEW_OPTIONS_EXTRA, options)
-
-                    // put callbackID as extra
                     callbackID?.let {
                         putExtra(CALLBACK_ID_EXTRA, callbackID)
                     }

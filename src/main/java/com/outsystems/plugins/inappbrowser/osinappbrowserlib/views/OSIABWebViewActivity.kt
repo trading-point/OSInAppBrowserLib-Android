@@ -31,8 +31,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private lateinit var appName: String
     // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the WebView
     private var isFirstLoad = true
-
-    // callbackID is optional, it will only be used for some usages of the library (e.g. Cordova)
+    // callbackID is optional, it will only be used for some usages of the library
     private var callbackID: String? = null
 
     companion object {
@@ -45,8 +44,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         appName = applicationInfo.loadLabel(packageManager).toString()
-
-        //callbackID
         callbackID = intent.extras?.getString(CALLBACK_ID_EXTRA)
 
         // get parameters from intent extras
@@ -252,6 +249,10 @@ class OSIABWebViewActivity : AppCompatActivity() {
         CookieManager.getInstance().flush()
     }
 
+    /**
+     * Responsible for sending broadcasts.
+     * @param event String identifying the event to send in the broadcast.
+     */
     private fun sendWebViewEvent(event: String) {
         sendBroadcast(
             Intent(event).apply {
