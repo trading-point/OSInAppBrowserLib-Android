@@ -45,6 +45,13 @@ class OSIABWebViewRouterAdapter(
         }
     }
 
+    /**
+     * Handles opening the passed `url` in the WebView.
+     * @param url URL to be opened.
+     * @param completionHandler The callback with the result of opening the url.
+     * @param options WebView options to open the WebView with.
+     * @param callbackID optional ID associated to a call to the method.
+     */
     override fun handleOpen(url: String, options: OSIABWebViewOptions?, callbackID: String?, completionHandler: (Boolean) -> Unit) {
         try {
             context.startActivity(
