@@ -8,6 +8,8 @@ import org.junit.Assert.*
 
 class OSIABEngineTests {
     private val url = "https://www.outsystems.com/"
+    private val options = OSIABWebViewOptions()
+    private val exampleCallbackID = "someCallbackID"
 
     @Test
     fun test_open_externalBrowserWithoutIssues_doesOpenBrowser() {
@@ -31,9 +33,16 @@ class OSIABEngineTests {
     }
 
     @Test
-    fun test_open_webViewWithIssues_doesNotWebView() {
+    fun test_open_webViewWithIssues_doesNotOpenWebView() {
         makeSUT(false).openWebView(url) { result ->
             assertFalse(result)
+        }
+    }
+
+    @Test
+    fun test_open_webViewWithOptionsAndCallbackWithoutIssues_doesOpenWebView() {
+        makeSUT(true).openWebView(url, options, exampleCallbackID) { result ->
+            assertTrue(result)
         }
     }
 

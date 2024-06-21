@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.os.Build
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEventListener
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABRouter
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.managers.OSIABEventManager
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEvents
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.views.OSIABWebViewActivity
@@ -14,7 +15,8 @@ import com.outsystems.plugins.inappbrowser.osinappbrowserlib.views.OSIABWebViewA
 class OSIABWebViewRouterAdapter(
     private val context: Context,
     private val listener: OSIABEventListener
-) : OSIABRouter<OSIABWebViewOptions, Boolean> {
+) : OSIABRouter<OSIABWebViewOptions, Boolean>, OSIABEventManager {
+
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -70,14 +72,14 @@ class OSIABWebViewRouterAdapter(
     /**
      * Calls onBrowserPageLoaded() method of OSIABEventListener
      */
-    private fun notifyBrowserPageLoaded(callbackID: String?) {
+    override fun notifyBrowserPageLoaded(callbackID: String?) {
         listener.onBrowserPageLoaded(callbackID)
     }
 
     /**
      * Calls onBrowserFinished() method of OSIABEventListener
      */
-    private fun notifyBrowserFinished(callbackID: String?) {
+    override fun notifyBrowserFinished(callbackID: String?) {
         listener.onBrowserFinished(callbackID)
     }
 
