@@ -1,10 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.outsystems.plugins.inappbrowser.osinappbrowserlib"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.outsystems.plugins.inappbrowser.osinappbrowserlib">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+
+            <category android:name="android.intent.category.BROWSABLE" />
+
+            <data android:scheme="http" />
+        </intent>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+
+            <category android:name="android.intent.category.BROWSABLE" />
+
+            <data android:scheme="https" />
+        </intent>
+    </queries>
+
     <application
         android:allowBackup="false"
-        android:usesCleartextTraffic="false"
-        />
+        android:usesCleartextTraffic="false">
+        <activity
+            android:name=".views.OSIABWebViewActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenSize"
+            android:label="OSIABWebViewActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+    </application>
 
     <queries>
         <intent>

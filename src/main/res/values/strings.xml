@@ -1,0 +1,5 @@
+<resources>
+    <string name="title_activity_osiabweb_view">OSIABWebViewActivity</string>
+    <string name="back_button">back_button</string>
+    <string name="forward_button">forward_button </string>
+</resources>
