@@ -140,12 +140,12 @@ class OSIABWebViewActivity : AppCompatActivity() {
         val webViewClient = object : WebViewClient() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
-                // store cookies after page finishes loading
-                storeCookies()
                 if (isFirstLoad) {
                     sendWebViewEvent(OSIABEvents.ACTION_BROWSER_PAGE_LOADED)
                     isFirstLoad = false
                 }
+                // store cookies after page finishes loading
+                storeCookies()
                 super.onPageFinished(view, url)
             }
 
