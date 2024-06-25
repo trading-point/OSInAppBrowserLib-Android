@@ -1,29 +1,19 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib.views
 
-import android.Manifest
-import android.app.AlertDialog
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.CookieManager
-import android.webkit.GeolocationPermissions
-import android.webkit.JsPromptResult
-import android.webkit.JsResult
-import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.R
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEvents
@@ -41,26 +31,19 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private lateinit var appName: String
     // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the WebView
     private var isFirstLoad = true
-
-    // callbackID is optional, it will only be used for some usages of the library (e.g. Cordova)
+    // callbackID is optional, it will only be used for some usages of the library
     private var callbackID: String? = null
-
-    // for permissions
-    private var currentPermissionRequest: PermissionRequest? = null
 
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
         const val WEB_VIEW_OPTIONS_EXTRA = "WEB_VIEW_OPTIONS_EXTRA"
         const val CALLBACK_ID_EXTRA = "CALLBACK_ID_EXTRA"
-        const val REQUEST_CAMERA_MIC_PERMISSION = 451
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         appName = applicationInfo.loadLabel(packageManager).toString()
-
-        //callbackID
         callbackID = intent.extras?.getString(CALLBACK_ID_EXTRA)
 
         // get parameters from intent extras
@@ -222,19 +205,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
             // override any methods necessary
 
-            override fun onPermissionRequest(request: PermissionRequest?) {
-                request?.let {
-                    handlePermissionRequest(it)
-                }
-            }
-
-            override fun onGeolocationPermissionsShowPrompt(
-                origin: String?,
-                callback: GeolocationPermissions.Callback?
-            ) {
-                // implement permission request
-            }
-
         }
         return webChromeClient
     }
@@ -279,39 +249,16 @@ class OSIABWebViewActivity : AppCompatActivity() {
         CookieManager.getInstance().flush()
     }
 
+    /**
+     * Responsible for sending broadcasts.
+     * @param event String identifying the event to send in the broadcast.
+     */
     private fun sendWebViewEvent(event: String) {
         sendBroadcast(
             Intent(event).apply {
                 callbackID?.let { putExtra(CALLBACK_ID_EXTRA, callbackID) }
             }
         )
-    }
-
-    private fun handlePermissionRequest(request: PermissionRequest) {
-        val permissions = request.resources
-        val permissionsNeeded = mutableListOf<String>()
-
-        if (permissions.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.CAMERA)
-            }
-        }
-
-        if (permissions.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.RECORD_AUDIO)
-            }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.MODIFY_AUDIO_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.MODIFY_AUDIO_SETTINGS)
-            }
-        }
-
-        if (permissionsNeeded.isNotEmpty()) {
-            ActivityCompat.requestPermissions(this, permissionsNeeded.toTypedArray(), REQUEST_CAMERA_MIC_PERMISSION)
-            currentPermissionRequest = request
-        } else {
-            request.grant(request.resources)
-        }
     }
 
 }

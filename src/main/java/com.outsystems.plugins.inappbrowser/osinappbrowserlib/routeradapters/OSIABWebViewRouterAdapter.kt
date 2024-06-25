@@ -7,6 +7,7 @@ import android.content.IntentFilter
 import android.os.Build
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEventListener
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABRouter
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.managers.OSIABEventManager
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEvents
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.views.OSIABWebViewActivity
@@ -14,13 +15,11 @@ import com.outsystems.plugins.inappbrowser.osinappbrowserlib.views.OSIABWebViewA
 class OSIABWebViewRouterAdapter(
     private val context: Context,
     private val listener: OSIABEventListener
-) : OSIABRouter<OSIABWebViewOptions, Boolean> {
+) : OSIABRouter<OSIABWebViewOptions, Boolean>, OSIABEventManager {
 
     private val broadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-
             val callbackID = intent?.extras?.getString(CALLBACK_ID_EXTRA)
-
             when (intent?.action) {
                 OSIABEvents.ACTION_BROWSER_PAGE_LOADED -> notifyBrowserPageLoaded(callbackID)
                 OSIABEvents.ACTION_BROWSER_FINISHED -> notifyBrowserFinished(callbackID)
@@ -46,6 +45,13 @@ class OSIABWebViewRouterAdapter(
         }
     }
 
+    /**
+     * Handles opening the passed `url` in the WebView.
+     * @param url URL to be opened.
+     * @param completionHandler The callback with the result of opening the url.
+     * @param options WebView options to open the WebView with.
+     * @param callbackID optional ID associated to a call to the method.
+     */
     override fun handleOpen(url: String, options: OSIABWebViewOptions?, callbackID: String?, completionHandler: (Boolean) -> Unit) {
         try {
             context.startActivity(
@@ -54,8 +60,6 @@ class OSIABWebViewRouterAdapter(
                 ).apply {
                     putExtra(WEB_VIEW_URL_EXTRA, url)
                     putExtra(WEB_VIEW_OPTIONS_EXTRA, options)
-
-                    // put callbackID as extra
                     callbackID?.let {
                         putExtra(CALLBACK_ID_EXTRA, callbackID)
                     }
@@ -70,14 +74,14 @@ class OSIABWebViewRouterAdapter(
     /**
      * Calls onBrowserPageLoaded() method of OSIABEventListener
      */
-    private fun notifyBrowserPageLoaded(callbackID: String?) {
+    override fun notifyBrowserPageLoaded(callbackID: String?) {
         listener.onBrowserPageLoaded(callbackID)
     }
 
     /**
      * Calls onBrowserFinished() method of OSIABEventListener
      */
-    private fun notifyBrowserFinished(callbackID: String?) {
+    override fun notifyBrowserFinished(callbackID: String?) {
         listener.onBrowserFinished(callbackID)
     }
 

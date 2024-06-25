@@ -23,5 +23,4 @@ class OSIABExternalBrowserRouterAdapter(private val context: Context) : OSIABRou
             completionHandler(false)
         }
     }
-
 }
