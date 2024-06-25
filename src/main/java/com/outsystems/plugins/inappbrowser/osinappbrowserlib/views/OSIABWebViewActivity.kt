@@ -1,9 +1,13 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib.views
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.CookieManager
+import android.webkit.GeolocationPermissions
+import android.webkit.PermissionRequest
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -14,6 +18,8 @@ import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.R
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEvents
@@ -34,10 +40,19 @@ class OSIABWebViewActivity : AppCompatActivity() {
     // callbackID is optional, it will only be used for some usages of the library
     private var callbackID: String? = null
 
+    // permissions
+    private var currentPermissionRequest: PermissionRequest? = null
+
+    //geolocation permissions
+    private var geolocationCallback: GeolocationPermissions.Callback? = null
+    private var geolocationOrigin: String? = null
+
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
         const val WEB_VIEW_OPTIONS_EXTRA = "WEB_VIEW_OPTIONS_EXTRA"
         const val CALLBACK_ID_EXTRA = "CALLBACK_ID_EXTRA"
+        const val REQUEST_STANDARD_PERMISSION = 622
+        const val REQUEST_LOCATION_PERMISSION = 623
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -205,6 +220,25 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
             // override any methods necessary
 
+            // handle standard permissions (e.g. audio, camera)
+            override fun onPermissionRequest(request: PermissionRequest?) {
+                //super.onPermissionRequest(request)
+                request?.let {
+                    handlePermissionRequest(it)
+                }
+            }
+
+            // specifically handle geolocation permission
+            override fun onGeolocationPermissionsShowPrompt(
+                origin: String?,
+                callback: GeolocationPermissions.Callback?
+            ) {
+                //super.onGeolocationPermissionsShowPrompt(origin, callback)
+                if (origin != null && callback != null) {
+                    handleGeolocationPermission(origin, callback)
+                }
+            }
+
         }
         return webChromeClient
     }
@@ -259,6 +293,50 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 callbackID?.let { putExtra(CALLBACK_ID_EXTRA, callbackID) }
             }
         )
+    }
+
+    /**
+     * Responsible for handling standard permission requests coming from the WebView
+     * @param request PermissionRequest containing the permissions to request
+     */
+    private fun handlePermissionRequest(request: PermissionRequest) {
+        val permissions = request.resources
+        val permissionsNeeded = mutableListOf<String>()
+
+        if (permissions.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.CAMERA)
+            }
+        }
+
+        if (permissions.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.RECORD_AUDIO)
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.MODIFY_AUDIO_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
+                permissionsNeeded.add(Manifest.permission.MODIFY_AUDIO_SETTINGS)
+            }
+        }
+
+        if (permissionsNeeded.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsNeeded.toTypedArray(), REQUEST_STANDARD_PERMISSION)
+            currentPermissionRequest = request
+        } else {
+            request.grant(request.resources)
+        }
+    }
+
+    /**
+     *
+     */
+    private fun handleGeolocationPermission(origin: String, callback: GeolocationPermissions.Callback) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION)
+            geolocationCallback = callback
+            geolocationOrigin = origin
+        } else {
+            callback.invoke(origin, true, false)
+        }
     }
 
 }
