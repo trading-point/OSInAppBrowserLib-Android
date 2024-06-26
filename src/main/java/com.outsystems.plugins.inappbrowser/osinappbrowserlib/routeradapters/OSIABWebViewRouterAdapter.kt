@@ -61,12 +61,7 @@ class OSIABWebViewRouterAdapter(
             completionHandler(true)
         } catch (e: Exception) {
             completionHandler(false)
-            notifyBrowserPageLoaded()
         }
-    }
-
-    private fun notifyBrowserPageLoaded() {
-        onBrowserPageLoaded()
     }
 
 }
