@@ -8,47 +8,48 @@ import org.junit.Assert.*
 
 class OSIABEngineTests {
     private val url = "https://www.outsystems.com/"
-    private val options = OSIABWebViewOptions()
-    private val exampleCallbackID = "someCallbackID"
+
+    private lateinit var externalBrowserRouterSpy : OSIABRouterSpy<Unit>
+    private lateinit var webViewRouterSpy : OSIABRouterSpy<OSIABWebViewOptions>
 
     @Test
     fun test_open_externalBrowserWithoutIssues_doesOpenBrowser() {
-        makeSUT(true).openExternalBrowser(url) { result ->
+        makeSUT(true).openExternalBrowser(externalBrowserRouterSpy, url) { result ->
             assertTrue(result)
         }
     }
 
     @Test
     fun test_open_externalBrowserWithIssues_doesNotOpenBrowser() {
-        makeSUT(false).openExternalBrowser(url) { result ->
+        makeSUT(false).openExternalBrowser(externalBrowserRouterSpy, url) { result ->
             assertFalse(result)
         }
     }
 
     @Test
     fun test_open_webViewWithoutIssues_doesOpenWebView() {
-        makeSUT(true).openWebView(url) { result ->
+        makeSUT(true).openWebView(webViewRouterSpy, url) { result ->
             assertTrue(result)
         }
     }
 
     @Test
     fun test_open_webViewWithIssues_doesNotOpenWebView() {
-        makeSUT(false).openWebView(url) { result ->
+        makeSUT(false).openWebView(webViewRouterSpy, url) { result ->
             assertFalse(result)
         }
     }
 
     @Test
     fun test_open_webViewWithOptionsAndCallbackWithoutIssues_doesOpenWebView() {
-        makeSUT(true).openWebView(url, options, exampleCallbackID) { result ->
+        makeSUT(true).openWebView(webViewRouterSpy, url) { result ->
             assertTrue(result)
         }
     }
 
     private fun makeSUT(shouldOpenBrowser: Boolean): OSIABEngine {
-        val externalBrowserRouterSpy = OSIABRouterSpy<Unit>(shouldOpenBrowser)
-        val webViewRouterSpy = OSIABRouterSpy<OSIABWebViewOptions>(shouldOpenBrowser)
-        return OSIABEngine(externalBrowserRouterSpy, webViewRouterSpy)
+        externalBrowserRouterSpy = OSIABRouterSpy(shouldOpenBrowser)
+        webViewRouterSpy = OSIABRouterSpy(shouldOpenBrowser)
+        return OSIABEngine()
     }
 }
