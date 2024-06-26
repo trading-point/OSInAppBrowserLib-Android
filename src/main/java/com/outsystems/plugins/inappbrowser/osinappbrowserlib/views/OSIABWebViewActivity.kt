@@ -15,9 +15,11 @@ import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEvents
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.R
-import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEvents
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
+import kotlinx.coroutines.launch
 
 class OSIABWebViewActivity : AppCompatActivity() {
 
@@ -72,7 +74,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         }
 
         closeButton.setOnClickListener {
-            sendWebViewEvent(OSIABEvents.ACTION_BROWSER_FINISHED)
+            sendWebViewEvent(OSIABEvents.BrowserFinished)
             webView.destroy()
             finish()
         }
@@ -130,7 +132,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 if (isFirstLoad) {
-                    sendWebViewEvent(OSIABEvents.ACTION_BROWSER_PAGE_LOADED)
+                    sendWebViewEvent(OSIABEvents.BrowserPageLoaded)
                     isFirstLoad = false
                 }
                 // store cookies after page finishes loading
@@ -212,7 +214,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         if (options.hardwareBack && webView.canGoBack()) {
             webView.goBack()
         } else {
-            sendWebViewEvent(OSIABEvents.ACTION_BROWSER_FINISHED)
+            sendWebViewEvent(OSIABEvents.BrowserFinished)
             webView.destroy()
             super.onBackPressedDispatcher.onBackPressed()
         }
@@ -249,8 +251,10 @@ class OSIABWebViewActivity : AppCompatActivity() {
      * Responsible for sending broadcasts.
      * @param event String identifying the event to send in the broadcast.
      */
-    private fun sendWebViewEvent(event: String) {
-        sendBroadcast(Intent(event))
+    private fun sendWebViewEvent(event: OSIABEvents) {
+        lifecycleScope.launch {
+             OSIABEvents.browserEvents.emit(event)
+        }
     }
 
 }
