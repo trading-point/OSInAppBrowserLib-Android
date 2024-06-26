@@ -35,7 +35,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
         const val WEB_VIEW_OPTIONS_EXTRA = "WEB_VIEW_OPTIONS_EXTRA"
-        const val CALLBACK_ID_EXTRA = "CALLBACK_ID_EXTRA"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -29,7 +29,6 @@ class OSIABEngine {
     ) {
         return webViewRouter.handleOpen(url, completionHandler)
     }
-
 }
 
 fun Context.canOpenURL(uri: Uri): Boolean {
