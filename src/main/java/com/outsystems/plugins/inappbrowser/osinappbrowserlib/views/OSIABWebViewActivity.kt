@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.webkit.CookieManager
 import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -237,6 +238,15 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 if (origin != null && callback != null) {
                     handleGeolocationPermission(origin, callback)
                 }
+            }
+
+            // file chooser stuff, maybe we also have to do this
+            override fun onShowFileChooser(
+                webView: WebView?,
+                filePathCallback: ValueCallback<Array<Uri>>?,
+                fileChooserParams: FileChooserParams?
+            ): Boolean {
+                // return super.onShowFileChooser(webView, filePathCallback, fileChooserParams)
             }
 
         }
