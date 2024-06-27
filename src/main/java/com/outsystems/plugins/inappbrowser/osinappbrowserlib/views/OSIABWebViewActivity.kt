@@ -47,6 +47,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
     //geolocation permissions
     private var geolocationCallback: GeolocationPermissions.Callback? = null
     private var geolocationOrigin: String? = null
+    private var wasGeolocationPermissionDenied = false
 
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
@@ -221,7 +222,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
             // handle standard permissions (e.g. audio, camera)
             override fun onPermissionRequest(request: PermissionRequest?) {
-                //super.onPermissionRequest(request)
                 request?.let {
                     handlePermissionRequest(it)
                 }
@@ -286,7 +286,9 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 currentPermissionRequest = null
             }
             REQUEST_LOCATION_PERMISSION -> {
-                val granted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+                // only one of these needs to be granted: ACCESS_FINE_LOCATION or ACCESS_COARSE_LOCATION
+                val granted = grantResults.any { it == PackageManager.PERMISSION_GRANTED }
+                wasGeolocationPermissionDenied = !granted
                 geolocationCallback?.invoke(geolocationOrigin, granted, false)
                 geolocationCallback = null
                 geolocationOrigin = null
@@ -365,11 +367,30 @@ class OSIABWebViewActivity : AppCompatActivity() {
     /**
      *
      */
-    private fun handleGeolocationPermission(origin: String, callback: GeolocationPermissions.Callback) {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), REQUEST_LOCATION_PERMISSION)
+    private fun handleGeolocationPermission(
+        origin: String,
+        callback: GeolocationPermissions.Callback
+    ) {
+        if (wasGeolocationPermissionDenied) {
+            callback.invoke(origin, false, false)
+            return
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        ) {
+
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                REQUEST_LOCATION_PERMISSION
+            )
             geolocationCallback = callback
             geolocationOrigin = origin
+
         } else {
             callback.invoke(origin, true, false)
         }
