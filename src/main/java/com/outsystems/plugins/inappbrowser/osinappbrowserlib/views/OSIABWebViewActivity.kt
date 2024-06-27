@@ -22,9 +22,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEvents
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.R
-import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABEvents
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
+import kotlinx.coroutines.launch
 
 class OSIABWebViewActivity : AppCompatActivity() {
 
@@ -38,8 +40,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private lateinit var appName: String
     // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the WebView
     private var isFirstLoad = true
-    // callbackID is optional, it will only be used for some usages of the library
-    private var callbackID: String? = null
 
     // permissions
     private var currentPermissionRequest: PermissionRequest? = null
@@ -60,7 +60,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         appName = applicationInfo.loadLabel(packageManager).toString()
-        callbackID = intent.extras?.getString(CALLBACK_ID_EXTRA)
 
         // get parameters from intent extras
         val urlToOpen = intent.extras?.getString(WEB_VIEW_URL_EXTRA)
@@ -92,7 +91,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         }
 
         closeButton.setOnClickListener {
-            sendWebViewEvent(OSIABEvents.ACTION_BROWSER_FINISHED)
+            sendWebViewEvent(OSIABEvents.BrowserFinished)
             webView.destroy()
             finish()
         }
@@ -150,7 +149,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 if (isFirstLoad) {
-                    sendWebViewEvent(OSIABEvents.ACTION_BROWSER_PAGE_LOADED)
+                    sendWebViewEvent(OSIABEvents.BrowserPageLoaded)
                     isFirstLoad = false
                 }
                 // store cookies after page finishes loading
@@ -260,7 +259,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         if (options.hardwareBack && webView.canGoBack()) {
             webView.goBack()
         } else {
-            sendWebViewEvent(OSIABEvents.ACTION_BROWSER_FINISHED)
+            sendWebViewEvent(OSIABEvents.BrowserFinished)
             webView.destroy()
             super.onBackPressedDispatcher.onBackPressed()
         }
@@ -297,12 +296,10 @@ class OSIABWebViewActivity : AppCompatActivity() {
      * Responsible for sending broadcasts.
      * @param event String identifying the event to send in the broadcast.
      */
-    private fun sendWebViewEvent(event: String) {
-        sendBroadcast(
-            Intent(event).apply {
-                callbackID?.let { putExtra(CALLBACK_ID_EXTRA, callbackID) }
-            }
-        )
+    private fun sendWebViewEvent(event: OSIABEvents) {
+        lifecycleScope.launch {
+             OSIABEvents.browserEvents.emit(event)
+        }
     }
 
     /**

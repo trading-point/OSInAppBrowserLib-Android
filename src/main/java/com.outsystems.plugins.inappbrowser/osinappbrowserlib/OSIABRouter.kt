@@ -1,14 +1,11 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib
 
-interface OSIABRouter<OptionsType, ReturnType> {
+interface OSIABRouter<ReturnType> {
 
     /**
      * Handles opening the passed `url`.
      * @param url URL to be opened.
      * @param completionHandler The callback with the result of opening the url.
-     * @param options WebView options to open the WebView with.
-     * @param callbackID optional ID associated to a call to the method.
      */
-    fun handleOpen(url: String, options: OptionsType? = null, callbackID: String? = null, completionHandler: (ReturnType) -> Unit)
-
+    fun handleOpen(url: String, completionHandler: (ReturnType) -> Unit)
 }
