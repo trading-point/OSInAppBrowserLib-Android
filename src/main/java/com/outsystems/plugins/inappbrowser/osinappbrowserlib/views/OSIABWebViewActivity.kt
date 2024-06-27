@@ -1,37 +1,38 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib.views
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.webkit.CookieManager
-import android.webkit.JsPromptResult
-import android.webkit.JsResult
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Button
-import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEvents
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.R
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
+import kotlinx.coroutines.launch
 
 class OSIABWebViewActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
     private lateinit var closeButton: Button
-    private lateinit var backButton: ImageButton
-    private lateinit var forwardButton: ImageButton
+    private lateinit var backNavigationButton: ImageButton
+    private lateinit var forwardNavigationButton: ImageButton
     private lateinit var urlText: TextView
     private lateinit var toolbar: Toolbar
     private lateinit var options: OSIABWebViewOptions
     private lateinit var appName: String
+    // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the WebView
+    private var isFirstLoad = true
 
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
@@ -52,8 +53,8 @@ class OSIABWebViewActivity : AppCompatActivity() {
         //get elements in screen
         webView = findViewById(R.id.webview)
         closeButton = findViewById(R.id.close_button)
-        backButton = findViewById(R.id.back_button)
-        forwardButton = findViewById(R.id.forward_button)
+        backNavigationButton = findViewById(R.id.back_button)
+        forwardNavigationButton = findViewById(R.id.forward_button)
         urlText = findViewById(R.id.url_text)
         toolbar = findViewById(R.id.toolbar)
 
@@ -73,15 +74,16 @@ class OSIABWebViewActivity : AppCompatActivity() {
         }
 
         closeButton.setOnClickListener {
+            sendWebViewEvent(OSIABEvents.BrowserFinished)
             webView.destroy()
             finish()
         }
 
-        backButton.setOnClickListener {
+        backNavigationButton.setOnClickListener {
             if (webView.canGoBack()) webView.goBack()
         }
 
-        forwardButton.setOnClickListener {
+        forwardNavigationButton.setOnClickListener {
             if (webView.canGoForward()) webView.goForward()
         }
 
@@ -129,9 +131,13 @@ class OSIABWebViewActivity : AppCompatActivity() {
         val webViewClient = object : WebViewClient() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
-                super.onPageFinished(view, url)
+                if (isFirstLoad) {
+                    sendWebViewEvent(OSIABEvents.BrowserPageLoaded)
+                    isFirstLoad = false
+                }
                 // store cookies after page finishes loading
                 storeCookies()
+                super.onPageFinished(view, url)
             }
 
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
@@ -208,6 +214,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         if (options.hardwareBack && webView.canGoBack()) {
             webView.goBack()
         } else {
+            sendWebViewEvent(OSIABEvents.BrowserFinished)
             webView.destroy()
             super.onBackPressedDispatcher.onBackPressed()
         }
@@ -238,6 +245,16 @@ class OSIABWebViewActivity : AppCompatActivity() {
      */
     private fun storeCookies() {
         CookieManager.getInstance().flush()
+    }
+
+    /**
+     * Responsible for sending broadcasts.
+     * @param event String identifying the event to send in the broadcast.
+     */
+    private fun sendWebViewEvent(event: OSIABEvents) {
+        lifecycleScope.launch {
+             OSIABEvents.browserEvents.emit(event)
+        }
     }
 
 }
