@@ -244,7 +244,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 filePathCallback: ValueCallback<Array<Uri>>?,
                 fileChooserParams: FileChooserParams?
             ): Boolean {
-                // return super.onShowFileChooser(webView, filePathCallback, fileChooserParams)
+                 return super.onShowFileChooser(webView, filePathCallback, fileChooserParams)
             }
 
         }
@@ -261,6 +261,36 @@ class OSIABWebViewActivity : AppCompatActivity() {
             sendWebViewEvent(OSIABEvents.BrowserFinished)
             webView.destroy()
             super.onBackPressedDispatcher.onBackPressed()
+        }
+    }
+
+    /**
+     * Handle permission requests
+     */
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_STANDARD_PERMISSION -> {
+                val granted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+                currentPermissionRequest?.let {
+                    if (granted) {
+                        it.grant(it.resources)
+                    } else {
+                        it.deny()
+                    }
+                }
+                currentPermissionRequest = null
+            }
+            REQUEST_LOCATION_PERMISSION -> {
+                val granted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+                geolocationCallback?.invoke(geolocationOrigin, granted, false)
+                geolocationCallback = null
+                geolocationOrigin = null
+            }
         }
     }
 
