@@ -13,6 +13,7 @@ import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABViewSty
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.routeradapters.OSIABCustomTabsRouterAdapter
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -80,10 +81,7 @@ class OSIABCustomTabsRouterAdapterTests {
     }
 
     @Test
-    fun test_handleOpen_withValidURL_launchesCustomTab_when_browserPageLoaded_then_browserPageLoadedTriggered() =
-        runTest(
-            StandardTestDispatcher()
-        ) {
+    fun test_handleOpen_withValidURL_launchesCustomTab_when_browserPageLoaded_then_browserPageLoadedTriggered() {
             val context = mockContext(useValidURL = true, ableToOpenURL = true)
             val options = OSIABCustomTabsOptions(
                 showTitle = true,

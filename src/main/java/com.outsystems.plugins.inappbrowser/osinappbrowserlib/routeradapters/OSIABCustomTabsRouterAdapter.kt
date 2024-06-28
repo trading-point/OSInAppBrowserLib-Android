@@ -25,6 +25,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
 
 class OSIABCustomTabsRouterAdapter(
@@ -115,7 +116,7 @@ class OSIABCustomTabsRouterAdapter(
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun handleOpen(url: String, completionHandler: (Boolean) -> Unit) {
-        GlobalScope.launch(Dispatchers.Main) {
+        GlobalScope.launch(Dispatchers.IO) {
             try {
                 val uri = Uri.parse(url)
                 if (!context.canOpenURL(uri)) {
@@ -124,7 +125,7 @@ class OSIABCustomTabsRouterAdapter(
                 }
 
                 if (null == customTabsSession) {
-                    withTimeout(2000) {
+                    withTimeoutOrNull(2000) {
                         initializeCustomTabsSession()
                         waitForCustomTabsSession()
                     }
