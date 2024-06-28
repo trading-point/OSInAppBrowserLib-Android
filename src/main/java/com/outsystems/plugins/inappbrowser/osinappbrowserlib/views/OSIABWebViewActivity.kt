@@ -261,15 +261,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 filePathCallback: ValueCallback<Array<Uri>>?,
                 fileChooserParams: FileChooserParams?
             ): Boolean {
-                //return super.onShowFileChooser(webView, filePathCallback, fileChooserParams)
-                //val content = Intent(Intent.ACTION_GET_CONTENT)
-                //content.addCategory(Intent.CATEGORY_OPENABLE)
-                //content.setType("*/*")
-
-                //startActivity(Intent.createChooser(content, "Select File"))
-                //return true
-
-
                 this@OSIABWebViewActivity.filePathCallback = filePathCallback
                 val intent = fileChooserParams?.createIntent()
                 try {
