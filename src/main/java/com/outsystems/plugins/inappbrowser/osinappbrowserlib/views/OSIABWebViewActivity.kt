@@ -1,10 +1,12 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib.views
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.webkit.CookieManager
 import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
@@ -17,6 +19,7 @@ import android.webkit.WebViewClient
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -44,16 +47,30 @@ class OSIABWebViewActivity : AppCompatActivity() {
     // permissions
     private var currentPermissionRequest: PermissionRequest? = null
 
-    //geolocation permissions
+    // geolocation permissions
     private var geolocationCallback: GeolocationPermissions.Callback? = null
     private var geolocationOrigin: String? = null
     private var wasGeolocationPermissionDenied = false
+
+    // for file chooser
+    private var filePathCallback: ValueCallback<Array<Uri>>? = null
+
+    private val fileChooserLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                filePathCallback?.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result.resultCode, result.data))
+            } else {
+                filePathCallback?.onReceiveValue(null)
+            }
+            filePathCallback = null
+        }
 
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
         const val WEB_VIEW_OPTIONS_EXTRA = "WEB_VIEW_OPTIONS_EXTRA"
         const val REQUEST_STANDARD_PERMISSION = 622
         const val REQUEST_LOCATION_PERMISSION = 623
+        const val LOG_TAG = "OSIABWebViewActivity"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -238,13 +255,31 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 }
             }
 
-            // file chooser stuff, maybe we also have to do this
+            // handle opening the file chooser within the WebView
             override fun onShowFileChooser(
                 webView: WebView?,
                 filePathCallback: ValueCallback<Array<Uri>>?,
                 fileChooserParams: FileChooserParams?
             ): Boolean {
-                 return super.onShowFileChooser(webView, filePathCallback, fileChooserParams)
+                //return super.onShowFileChooser(webView, filePathCallback, fileChooserParams)
+                //val content = Intent(Intent.ACTION_GET_CONTENT)
+                //content.addCategory(Intent.CATEGORY_OPENABLE)
+                //content.setType("*/*")
+
+                //startActivity(Intent.createChooser(content, "Select File"))
+                //return true
+
+
+                this@OSIABWebViewActivity.filePathCallback = filePathCallback
+                val intent = fileChooserParams?.createIntent()
+                try {
+                    fileChooserLauncher.launch(intent)
+                } catch (e: Exception) {
+                    this@OSIABWebViewActivity.filePathCallback = null
+                    Log.d(LOG_TAG, "Error launching file chooser. Exception: ${e.message}")
+                    return false
+                }
+                return true
             }
 
         }
@@ -324,8 +359,8 @@ class OSIABWebViewActivity : AppCompatActivity() {
     }
 
     /**
-     * Responsible for sending broadcasts.
-     * @param event String identifying the event to send in the broadcast.
+     * Responsible for sending events.
+     * @param event Event to be sent with Kotlin Flows.
      */
     private fun sendWebViewEvent(event: OSIABEvents) {
         lifecycleScope.launch {
