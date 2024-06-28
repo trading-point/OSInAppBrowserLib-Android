@@ -34,6 +34,9 @@ class OSIABCustomTabsRouterAdapter(
 ) : OSIABRouter<Boolean> {
     private var customTabsSession: CustomTabsSession? = null
 
+    // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the CustomTabs instance
+    private var isFirstLoad = true
+
     companion object {
         const val CHROME_PACKAGE_NAME = "com.android.chrome"
     }
@@ -195,7 +198,10 @@ class OSIABCustomTabsRouterAdapter(
             super.onNavigationEvent(navigationEvent, extras)
             when (navigationEvent) {
                 NAVIGATION_FINISHED -> {
-                    onBrowserPageLoaded()
+                    if (isFirstLoad) {
+                        onBrowserPageLoaded()
+                        isFirstLoad = false
+                    }
                 }
                 TAB_HIDDEN -> {
                     onBrowserFinished()
