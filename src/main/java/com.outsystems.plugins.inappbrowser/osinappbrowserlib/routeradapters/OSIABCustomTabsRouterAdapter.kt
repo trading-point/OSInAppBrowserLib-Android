@@ -15,6 +15,7 @@ import androidx.browser.customtabs.CustomTabsServiceConnection
 import androidx.browser.customtabs.CustomTabsSession
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABRouter
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.canOpenURL
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABCustomTabsCallback
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABAnimation
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABCustomTabsOptions
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABViewStyle
@@ -67,7 +68,24 @@ class OSIABCustomTabsRouterAdapter(
         CustomTabsClient.bindCustomTabsService(context, getDefaultCustomTabsPackageName(), object : CustomTabsServiceConnection() {
             override fun onCustomTabsServiceConnected(name: ComponentName, client: CustomTabsClient) {
                 client.warmup(0L)
-                customTabsSession = client.newSession(CustomTabsCallbackImpl())
+                customTabsSession = client.newSession(
+                    //CustomTabsCallbackImpl()
+                    OSIABCustomTabsCallback(
+                        onEventReceived = { navigationEvent ->
+                            when (navigationEvent) {
+                                CustomTabsCallback.NAVIGATION_FINISHED -> {
+                                    if (isFirstLoad) {
+                                        onBrowserPageLoaded()
+                                        isFirstLoad = false
+                                    }
+                                }
+                                CustomTabsCallback.TAB_HIDDEN -> {
+                                    onBrowserFinished()
+                                }
+                            }
+                        }
+                    )
+                )
             }
 
             override fun onServiceDisconnected(name: ComponentName) {
