@@ -2,8 +2,8 @@ package com.outsystems.plugins.inappbrowser.osinappbrowserlib
 
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABRouterSpy
 import org.junit.Assert.assertFalse
-import org.junit.Test
 import org.junit.Assert.assertTrue
+import org.junit.Test
 
 class OSIABEngineTests {
     private val url = "https://www.outsystems.com/"

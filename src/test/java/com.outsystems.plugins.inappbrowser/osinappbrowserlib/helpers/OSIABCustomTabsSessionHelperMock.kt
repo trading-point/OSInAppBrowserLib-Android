@@ -6,7 +6,6 @@ import androidx.browser.customtabs.CustomTabsSession
 
 class OSIABCustomTabsSessionHelperMock: OSIABCustomTabsSessionHelperInterface {
     private val componentName = "OSIABTestComponent"
-
     var eventToReturn: Int? = null
 
     override suspend fun generateNewCustomTabsSession(context: Context, onEventReceived: (Int) -> Unit): CustomTabsSession {

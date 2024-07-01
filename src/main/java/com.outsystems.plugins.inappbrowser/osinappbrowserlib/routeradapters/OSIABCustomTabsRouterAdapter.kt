@@ -30,7 +30,6 @@ class OSIABCustomTabsRouterAdapter(
 
     private fun buildCustomTabsIntent(): CustomTabsIntent {
         val builder = CustomTabsIntent.Builder(customTabsSession)
-
         builder.setShowTitle(options.showTitle)
         builder.setUrlBarHidingEnabled(options.hideToolbarOnScroll)
 
