@@ -1,9 +1,9 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib
 
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABRouterSpy
+import org.junit.Assert.assertFalse
 import org.junit.Test
-
-import org.junit.Assert.*
+import org.junit.Assert.assertTrue
 
 class OSIABEngineTests {
     private val url = "https://www.outsystems.com/"
@@ -24,7 +24,6 @@ class OSIABEngineTests {
             assertFalse(result)
         }
     }
-
     @Test
     fun test_open_webViewWithoutIssues_doesOpenWebView() {
         makeSUT(true).openWebView(webViewRouterSpy, url) { result ->
