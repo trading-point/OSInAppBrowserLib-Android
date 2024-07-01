@@ -1,15 +1,15 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib
 
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABRouterSpy
-import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
-
-import org.junit.Assert.*
 
 class OSIABEngineTests {
     private val url = "https://www.outsystems.com/"
-    private lateinit var externalBrowserRouterSpy : OSIABRouterSpy<Unit>
-    private lateinit var webViewRouterSpy : OSIABRouterSpy<OSIABWebViewOptions>
+    private lateinit var customTabsRouterSpy : OSIABRouterSpy
+    private lateinit var externalBrowserRouterSpy : OSIABRouterSpy
+    private lateinit var webViewRouterSpy : OSIABRouterSpy
 
     @Test
     fun test_open_externalBrowserWithoutIssues_doesOpenBrowser() {
@@ -24,7 +24,6 @@ class OSIABEngineTests {
             assertFalse(result)
         }
     }
-
     @Test
     fun test_open_webViewWithoutIssues_doesOpenWebView() {
         makeSUT(true).openWebView(webViewRouterSpy, url) { result ->
@@ -40,13 +39,21 @@ class OSIABEngineTests {
     }
 
     @Test
-    fun test_open_webViewWithOptionsAndCallbackWithoutIssues_doesOpenWebView() {
-        makeSUT(true).openWebView(webViewRouterSpy, url) { result ->
+    fun test_open_customTabsWithoutIssues_doesOpenCustomTabs() {
+        makeSUT(true).openCustomTabs(customTabsRouterSpy, url) { result ->
             assertTrue(result)
         }
     }
 
+    @Test
+    fun test_open_customTabsWithIssues_doesNotOpenCustomTabs() {
+        makeSUT(false).openCustomTabs(customTabsRouterSpy, url) { result ->
+            assertFalse(result)
+        }
+    }
+
     private fun makeSUT(shouldOpenBrowser: Boolean): OSIABEngine {
+        customTabsRouterSpy = OSIABRouterSpy(shouldOpenBrowser)
         externalBrowserRouterSpy = OSIABRouterSpy(shouldOpenBrowser)
         webViewRouterSpy = OSIABRouterSpy(shouldOpenBrowser)
         return OSIABEngine()
