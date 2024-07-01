@@ -4,7 +4,7 @@ data class OSIABCustomTabsOptions(
     val showTitle: Boolean = true,
     val hideToolbarOnScroll: Boolean = false,
     val viewStyle: OSIABViewStyle = OSIABViewStyle.FULL_SCREEN,
-    val bottomSheetOptions: OSIABBottomSheet?,
-    val startAnimation: OSIABAnimation,
-    val exitAnimation: OSIABAnimation
+    val bottomSheetOptions: OSIABBottomSheet? = null,
+    val startAnimation: OSIABAnimation = OSIABAnimation.FADE_IN,
+    val exitAnimation: OSIABAnimation = OSIABAnimation.FADE_OUT
 )
