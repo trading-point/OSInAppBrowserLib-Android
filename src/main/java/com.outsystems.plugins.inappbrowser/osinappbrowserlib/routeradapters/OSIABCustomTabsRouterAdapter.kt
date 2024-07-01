@@ -31,72 +31,70 @@ class OSIABCustomTabsRouterAdapter(
     private fun buildCustomTabsIntent(): CustomTabsIntent {
         val builder = CustomTabsIntent.Builder(customTabsSession)
 
-        options.let {
-            builder.setShowTitle(it.showTitle)
-            builder.setUrlBarHidingEnabled(it.hideToolbarOnScroll)
+        builder.setShowTitle(options.showTitle)
+        builder.setUrlBarHidingEnabled(options.hideToolbarOnScroll)
 
-            when (it.startAnimation) {
-                OSIABAnimation.FADE_IN -> builder.setStartAnimations(
-                    context,
-                    android.R.anim.fade_in,
-                    android.R.anim.fade_out
-                )
+        when (options.startAnimation) {
+            OSIABAnimation.FADE_IN -> builder.setStartAnimations(
+                context,
+                android.R.anim.fade_in,
+                android.R.anim.fade_out
+            )
 
-                OSIABAnimation.FADE_OUT -> builder.setStartAnimations(
-                    context,
-                    android.R.anim.fade_out,
-                    android.R.anim.fade_in
-                )
+            OSIABAnimation.FADE_OUT -> builder.setStartAnimations(
+                context,
+                android.R.anim.fade_out,
+                android.R.anim.fade_in
+            )
 
-                OSIABAnimation.SLIDE_IN_LEFT -> builder.setStartAnimations(
-                    context,
-                    android.R.anim.slide_in_left,
-                    android.R.anim.slide_out_right
-                )
+            OSIABAnimation.SLIDE_IN_LEFT -> builder.setStartAnimations(
+                context,
+                android.R.anim.slide_in_left,
+                android.R.anim.slide_out_right
+            )
 
-                OSIABAnimation.SLIDE_OUT_RIGHT -> builder.setStartAnimations(
-                    context,
-                    android.R.anim.slide_out_right,
-                    android.R.anim.slide_in_left
-                )
-            }
+            OSIABAnimation.SLIDE_OUT_RIGHT -> builder.setStartAnimations(
+                context,
+                android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left
+            )
+        }
 
-            when (it.exitAnimation) {
-                OSIABAnimation.FADE_IN -> builder.setExitAnimations(
-                    context,
-                    android.R.anim.fade_out,
-                    android.R.anim.fade_in
-                )
+        when (options.exitAnimation) {
+            OSIABAnimation.FADE_IN -> builder.setExitAnimations(
+                context,
+                android.R.anim.fade_out,
+                android.R.anim.fade_in
+            )
 
-                OSIABAnimation.FADE_OUT -> builder.setExitAnimations(
-                    context,
-                    android.R.anim.fade_in,
-                    android.R.anim.fade_out
-                )
+            OSIABAnimation.FADE_OUT -> builder.setExitAnimations(
+                context,
+                android.R.anim.fade_in,
+                android.R.anim.fade_out
+            )
 
-                OSIABAnimation.SLIDE_IN_LEFT -> builder.setExitAnimations(
-                    context,
-                    android.R.anim.slide_out_right,
-                    android.R.anim.slide_in_left
-                )
+            OSIABAnimation.SLIDE_IN_LEFT -> builder.setExitAnimations(
+                context,
+                android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left
+            )
 
-                OSIABAnimation.SLIDE_OUT_RIGHT -> builder.setExitAnimations(
-                    context,
-                    android.R.anim.slide_in_left,
-                    android.R.anim.slide_out_right
-                )
-            }
+            OSIABAnimation.SLIDE_OUT_RIGHT -> builder.setExitAnimations(
+                context,
+                android.R.anim.slide_in_left,
+                android.R.anim.slide_out_right
+            )
+        }
 
-            if (it.viewStyle == OSIABViewStyle.BOTTOM_SHEET) {
-                it.bottomSheetOptions?.let { bottomSheetOptions ->
-                    if (bottomSheetOptions.isFixed) {
-                        builder.setInitialActivityHeightPx(
-                            bottomSheetOptions.height,
-                            CustomTabsIntent.ACTIVITY_HEIGHT_FIXED
-                        )
-                    } else {
-                        builder.setInitialActivityHeightPx(bottomSheetOptions.height)
-                    }
+        if (options.viewStyle == OSIABViewStyle.BOTTOM_SHEET) {
+            options.bottomSheetOptions?.let { bottomSheetOptions ->
+                if (bottomSheetOptions.isFixed) {
+                    builder.setInitialActivityHeightPx(
+                        bottomSheetOptions.height,
+                        CustomTabsIntent.ACTIVITY_HEIGHT_FIXED
+                    )
+                } else {
+                    builder.setInitialActivityHeightPx(bottomSheetOptions.height)
                 }
             }
         }
