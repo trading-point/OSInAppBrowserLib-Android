@@ -206,29 +206,32 @@ class OSIABWebViewActivity : AppCompatActivity() {
             ): Boolean {
                 val urlString = request?.url.toString()
                 return when {
-                    // handle tel: links opening the appropriate app
+                    // handle tel: urls opening the appropriate app
                     urlString.startsWith("tel:") -> {
-                        launchIntent(Intent.ACTION_DIAL, urlString)
+                        launchIntent(intentAction = Intent.ACTION_DIAL, urlString = urlString)
                     }
-                    // handle sms: and mailto: links opening the appropriate app
+                    // handle sms: and mailto: urls opening the appropriate app
                     urlString.startsWith("sms:") || urlString.startsWith("mailto:") -> {
-                        launchIntent(Intent.ACTION_SENDTO, urlString)
+                        launchIntent(intentAction = Intent.ACTION_SENDTO, urlString = urlString)
                     }
-                    // handle geo: links opening the appropriate app
+                    // handle geo: urls opening the appropriate app
                     urlString.startsWith("geo:") -> {
-                        launchIntent(Intent.ACTION_VIEW, urlString)
+                        launchIntent(urlString = urlString)
                     }
-                    // handle Google Play Store links opening the appropriate app
+                    // handle intent: urls
+                    urlString.startsWith("intent:") -> {
+                        launchIntent(urlString = urlString, isIntentUri = true)
+                    }
+                    // handle Google Play Store urls opening the appropriate app
                     urlString.startsWith("https://play.google.com/store") || urlString.startsWith("market:") -> {
-                        launchIntent(Intent.ACTION_VIEW, urlString, true)
+                        launchIntent(urlString = urlString, isGooglePlayStore = true)
                     }
-                    // handle every http and https link by loading it in the WebView
+                    // handle every http and https url by loading it in the WebView
                     urlString.startsWith("http:") || urlString.startsWith("https:") -> {
                         view?.loadUrl(urlString)
                         if (showURL) urlText.text = urlString
                         true
                     }
-
                     else -> false
                 }
             }
@@ -247,20 +250,33 @@ class OSIABWebViewActivity : AppCompatActivity() {
              * @param intentAction Action for the intent
              * @param urlString URL to be processed
              * @param isGooglePlayStore to determine if the URL is a Google Play Store link
+             * @param isIntentUri to determine if urlString is an intent URL
              */
             private fun launchIntent(
-                intentAction: String,
+                intentAction: String = Intent.ACTION_VIEW,
                 urlString: String,
-                isGooglePlayStore: Boolean = false
+                isGooglePlayStore: Boolean = false,
+                isIntentUri: Boolean = false
             ): Boolean {
-                val intent = Intent(intentAction).apply {
-                    data = Uri.parse(urlString)
-                    if (isGooglePlayStore) {
-                        setPackage("com.android.vending")
+                try {
+                    val intent: Intent?
+                    if (isIntentUri) {
+                        intent = Intent.parseUri(urlString, Intent.URI_INTENT_SCHEME)
+                    } else {
+                        intent = Intent(intentAction).apply {
+                            data = Uri.parse(urlString)
+                            if (isGooglePlayStore) {
+                                setPackage("com.android.vending")
+                            }
+                        }
                     }
+                    startActivity(intent)
+                    return true
+                } catch (e: Exception) {
+                    Log.d(LOG_TAG, "Failed to launch intent in WebView")
+                    return false
                 }
-                startActivity(intent)
-                return true
+
             }
         }
         return webViewClient
