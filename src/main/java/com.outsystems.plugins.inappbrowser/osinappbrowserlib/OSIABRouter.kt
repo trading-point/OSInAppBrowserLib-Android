@@ -1,7 +1,6 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib
 
 interface OSIABRouter<ReturnType> {
-
     /**
      * Handles opening the passed `url`.
      * @param url URL to be opened.

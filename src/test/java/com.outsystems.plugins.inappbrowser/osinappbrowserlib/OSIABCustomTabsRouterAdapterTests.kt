@@ -8,14 +8,10 @@ import android.content.pm.ResolveInfo
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsCallback
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABCustomTabsSessionHelperMock
-import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABAnimation
-import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABBottomSheet
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABCustomTabsOptions
-import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABViewStyle
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.routeradapters.OSIABCustomTabsRouterAdapter
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
@@ -30,7 +26,7 @@ import org.robolectric.RobolectricTestRunner
 
 @RunWith(RobolectricTestRunner::class)
 class OSIABCustomTabsRouterAdapterTests {
-    private val activityName = "TestActivity"
+    private val activityName = "OSIABTestActivity"
     private val packageName = "com.outsystems.plugins.inappbrowser.osinappbrowserlib"
     private val uri = Uri.parse("https://www.outsystems.com/")
     private val options = OSIABCustomTabsOptions()
@@ -153,35 +149,6 @@ class OSIABCustomTabsRouterAdapterTests {
             }
         }
     }
-
-    /*
-    @Test
-    fun test_handleOpen_withValidURL_launchesCustomTab_when_browserPageLoaded_then_browserPageLoadedTriggered() {
-            val context = mockContext(useValidURL = true, ableToOpenURL = true)
-            val options = OSIABCustomTabsOptions(
-                showTitle = true,
-                hideToolbarOnScroll = true,
-                startAnimation = OSIABAnimation.SLIDE_IN_LEFT,
-                exitAnimation = OSIABAnimation.SLIDE_OUT_RIGHT,
-                viewStyle = OSIABViewStyle.BOTTOM_SHEET,
-                bottomSheetOptions = OSIABBottomSheet(height = 100, isFixed = true)
-            )
-
-            val sut = OSIABCustomTabsRouterAdapter(context, options,
-                onBrowserPageLoaded = {
-                    assertTrue(true)
-                },
-                onBrowserFinished = {
-                    fail()
-                }
-            )
-
-            sut.handleOpen(uri.toString()) { success ->
-                assertTrue(success)
-            }
-        }
-
-     */
 
     private fun mockContext(useValidURL: Boolean, ableToOpenURL: Boolean = false): Context {
         val context = mock(Context::class.java)

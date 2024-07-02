@@ -105,5 +105,4 @@ class OSIABCustomTabsSessionHelper : OSIABCustomTabsSessionHelperInterface {
 
         return customTabsSession
     }
-
 }
