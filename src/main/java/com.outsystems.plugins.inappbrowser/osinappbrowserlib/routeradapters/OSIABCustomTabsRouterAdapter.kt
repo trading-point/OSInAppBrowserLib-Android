@@ -2,7 +2,6 @@ package com.outsystems.plugins.inappbrowser.osinappbrowserlib.routeradapters
 
 import android.content.Context
 import android.net.Uri
-import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsSession
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEvents
