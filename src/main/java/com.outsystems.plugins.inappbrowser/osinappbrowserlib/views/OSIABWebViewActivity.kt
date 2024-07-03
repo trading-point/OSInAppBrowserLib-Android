@@ -4,12 +4,14 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.View
 import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -34,11 +36,16 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private lateinit var urlText: TextView
     private lateinit var toolbar: Toolbar
     private lateinit var bottomToolbar: Toolbar
+    private lateinit var errorView: View
+    private lateinit var reloadButton: Button
     private lateinit var options: OSIABWebViewOptions
     private lateinit var appName: String
 
     // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the WebView
     private var isFirstLoad = true
+
+    private var currentUrl: String? = null
+    private var hasLoadError: Boolean = false
 
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
@@ -68,6 +75,10 @@ class OSIABWebViewActivity : AppCompatActivity() {
         //get elements in screen
         webView = findViewById(R.id.webview)
 
+        errorView = findViewById(R.id.error_layout)
+        reloadButton = findViewById(R.id.reload_button)
+
+
         toolbar = findViewById(R.id.toolbar)
         bottomToolbar = findViewById(R.id.bottom_toolbar)
 
@@ -85,6 +96,13 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
         bottomToolbar.isVisible =
             options.showToolbar && options.toolbarPosition != OSIABToolbarPosition.TOP
+
+        reloadButton.setOnClickListener {
+            currentUrl?.let {
+                webView.loadUrl(it)
+                hideErrorScreen()
+            }
+        }
 
         // clear cache if necessary
         possiblyClearCacheOrSessionCookies()
@@ -156,13 +174,17 @@ class OSIABWebViewActivity : AppCompatActivity() {
         val webViewClient = object : WebViewClient() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
-                if (isFirstLoad) {
+                if (isFirstLoad && !hasLoadError) {
                     sendWebViewEvent(OSIABEvents.BrowserPageLoaded)
                     isFirstLoad = false
                 }
+                // set back to false so that the next successful load
+                // if the load fails, onReceivedError takes care of setting it back to true
+                hasLoadError = false
                 // store cookies after page finishes loading
                 storeCookies()
                 if (hasNavigationButtons) updateNavigationButtons()
+                currentUrl = url
                 super.onPageFinished(view, url)
             }
 
@@ -205,7 +227,9 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 error: WebResourceError?
             ) {
                 // show the default WebView error page
-                super.onReceivedError(view, request, error)
+                //super.onReceivedError(view, request, error)
+                showErrorScreen()
+                hasLoadError = true
             }
 
             /**
@@ -248,6 +272,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
      */
     override fun onBackPressed() {
         if (options.hardwareBack && webView.canGoBack()) {
+            hideErrorScreen()
             webView.goBack()
         } else {
             sendWebViewEvent(OSIABEvents.BrowserFinished)
@@ -350,6 +375,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
             )
         backNavigationButton.setOnClickListener {
             if (webView.canGoBack()) {
+                hideErrorScreen()
                 webView.goBack()
             }
         }
@@ -362,6 +388,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 })
         forwardNavigationButton.setOnClickListener {
             if (webView.canGoForward()) {
+                hideErrorScreen()
                 webView.goForward()
             }
         }
@@ -431,6 +458,16 @@ class OSIABWebViewActivity : AppCompatActivity() {
         lifecycleScope.launch {
             OSIABEvents.browserEvents.emit(event)
         }
+    }
+
+    private fun showErrorScreen() {
+        webView.isVisible = false
+        errorView.isVisible = true
+    }
+
+    private fun hideErrorScreen() {
+        webView.isVisible = true
+        errorView.isVisible = false
     }
 
 }
