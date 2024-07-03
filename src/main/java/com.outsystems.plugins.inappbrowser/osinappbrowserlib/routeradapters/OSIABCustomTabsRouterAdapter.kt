@@ -2,9 +2,9 @@ package com.outsystems.plugins.inappbrowser.osinappbrowserlib.routeradapters
 
 import android.content.Context
 import android.net.Uri
-import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsSession
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEvents
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABRouter
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.canOpenURL
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABCustomTabsSessionHelper
@@ -113,13 +113,13 @@ class OSIABCustomTabsRouterAdapter(
                 if (null == customTabsSession) {
                     customTabsSession = customTabsSessionHelper.generateNewCustomTabsSession(context) { event ->
                         when (event) {
-                            CustomTabsCallback.NAVIGATION_FINISHED -> {
+                            OSIABEvents.BrowserPageLoaded -> {
                                 if (isFirstLoad) {
                                     onBrowserPageLoaded()
                                     isFirstLoad = false
                                 }
                             }
-                            CustomTabsCallback.TAB_HIDDEN -> {
+                            OSIABEvents.BrowserFinished -> {
                                 onBrowserFinished()
                             }
                         }
