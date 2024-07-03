@@ -60,7 +60,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
     // for file chooser
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
-
     private val fileChooserLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             if (result.resultCode == Activity.RESULT_OK) {
@@ -301,7 +300,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 origin: String?,
                 callback: GeolocationPermissions.Callback?
             ) {
-                //super.onGeolocationPermissionsShowPrompt(origin, callback)
                 if (origin != null && callback != null) {
                     handleGeolocationPermission(origin, callback)
                 }
@@ -582,7 +580,9 @@ class OSIABWebViewActivity : AppCompatActivity() {
     }
 
     /**
-     *
+     * Responsible for handling geolocation permission requests coming from the WebView
+     * @param origin From onGeolocationPermissionsShowPrompt, identifying the origin of the request
+     * @param callback Holds the callback of the permission request
      */
     private fun handleGeolocationPermission(
         origin: String,
