@@ -11,16 +11,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/error_screen_text"
-        android:textSize="20sp"
-        android:textColor="@android:color/black" />
+        android:textColor="@color/urlPrimary" />
 
     <Button
         android:id="@+id/reload_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/error_text"
-        android:layout_centerHorizontal="true"
+
+
         android:layout_marginTop="16dp"
-        android:text="Retry" />
+        android:drawableStart="@drawable/forward_button_black"
+        android:drawablePadding="8dp"
+        android:text="@string/reload_button_text"
+        android:textColor="@color/textPrimary"
+        android:background="@android:color/transparent"/>
 
 </RelativeLayout>

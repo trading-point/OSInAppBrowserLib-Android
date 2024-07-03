@@ -44,6 +44,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
     // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the WebView
     private var isFirstLoad = true
 
+    // for the error screen
     private var currentUrl: String? = null
     private var hasLoadError: Boolean = false
 
