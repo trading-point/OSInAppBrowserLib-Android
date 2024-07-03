@@ -108,7 +108,7 @@ class OSIABCustomTabsRouterAdapterTests {
                 context = context,
                 lifecycleScope = this,
                 customTabsSessionHelper = OSIABCustomTabsSessionHelperMock().apply {
-                    eventToReturn = CustomTabsCallback.NAVIGATION_FINISHED
+                    eventToReturn = OSIABEvents.BrowserPageLoaded
                 },
                 options = options,
                 onBrowserPageLoaded = {
@@ -133,7 +133,7 @@ class OSIABCustomTabsRouterAdapterTests {
                 context = context,
                 lifecycleScope = this,
                 customTabsSessionHelper = OSIABCustomTabsSessionHelperMock().apply {
-                    eventToReturn = CustomTabsCallback.TAB_HIDDEN
+                    eventToReturn = OSIABEvents.BrowserFinished
                 },
                 options = options,
                 onBrowserPageLoaded = {
