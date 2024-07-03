@@ -21,7 +21,7 @@
 
 
         android:layout_marginTop="16dp"
-        android:drawableStart="@drawable/forward_button_black"
+        android:drawableStart="@drawable/reload_button_black"
         android:drawablePadding="8dp"
         android:text="@string/reload_button_text"
         android:textAllCaps="false"
