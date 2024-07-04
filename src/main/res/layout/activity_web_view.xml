@@ -34,6 +34,12 @@
         layout="@layout/error_layout"
         android:visibility="gone" />
 
+    <!-- Loading view -->
+    <include
+        android:id="@+id/loading_layout"
+        layout="@layout/loading_layout"
+        android:visibility="gone" />
+
     <!-- Bottom Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/bottom_toolbar"

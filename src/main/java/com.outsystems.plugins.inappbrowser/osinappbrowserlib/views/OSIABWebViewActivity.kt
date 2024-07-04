@@ -39,6 +39,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private lateinit var bottomToolbar: Toolbar
     private lateinit var errorView: View
     private lateinit var reloadButton: Button
+    private lateinit var loadingView: View
     private lateinit var options: OSIABWebViewOptions
     private lateinit var appName: String
 
@@ -79,6 +80,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
         errorView = findViewById(R.id.error_layout)
         reloadButton = findViewById(R.id.reload_button)
+        loadingView = findViewById(R.id.loading_layout)
 
 
         toolbar = findViewById(R.id.toolbar)
@@ -113,6 +115,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         setupWebView()
         if (urlToOpen != null) {
             webView.loadUrl(urlToOpen)
+            showLoading()
         }
     }
 
@@ -176,6 +179,8 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
+
+                hideLoading()
 
                 if (!hasLoadError) {
                     hideErrorScreen()
@@ -489,10 +494,21 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private fun showErrorScreen() {
         webView.isVisible = false
         errorView.isVisible = true
+        loadingView.isVisible = false
     }
 
     private fun hideErrorScreen() {
         errorView.isVisible = false
+        webView.isVisible = true
+    }
+
+    private fun showLoading() {
+        loadingView.isVisible = true
+        webView.isVisible = false
+    }
+
+    private fun hideLoading() {
+        loadingView.isVisible = false
         webView.isVisible = true
     }
 
