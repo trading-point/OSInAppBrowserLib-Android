@@ -104,6 +104,8 @@ class OSIABWebViewActivity : AppCompatActivity() {
         reloadButton.setOnClickListener {
             currentUrl?.let {
                 webView.loadUrl(it)
+                errorView.isVisible = false
+                showLoading()
             }
         }
 
