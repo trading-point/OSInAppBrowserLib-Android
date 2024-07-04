@@ -238,13 +238,23 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 request: WebResourceRequest?,
                 error: WebResourceError?
             ) {
-                // show the default WebView error page
+                // let all errors firstly be handled by the default error handling mechanism
                 super.onReceivedError(view, request, error)
 
                 // we should check what error we got and only show the error screen for the errors we want to
 
-                hasLoadError = true
-                showErrorScreen()
+                val errorsToHandle = mutableListOf(
+                    ERROR_HOST_LOOKUP,
+                    ERROR_UNSUPPORTED_SCHEME,
+                    ERROR_BAD_URL
+                )
+
+                error?.let {
+                    if (errorsToHandle.contains(error.errorCode)) {
+                        hasLoadError = true
+                        showErrorScreen()
+                    }
+                }
 
             }
 
