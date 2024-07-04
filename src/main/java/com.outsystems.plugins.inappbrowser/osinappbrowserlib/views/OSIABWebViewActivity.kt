@@ -138,14 +138,20 @@ class OSIABWebViewActivity : AppCompatActivity() {
         webView.settings.mediaPlaybackRequiresUserGesture = options.mediaPlaybackRequiresUserAction
 
         // setup WebViewClient and WebChromeClient
-        webView.webViewClient = customWebViewClient(options.showNavigationButtons)
+        webView.webViewClient =
+            customWebViewClient(
+                options.showNavigationButtons && options.showToolbar,
+                options.showURL && options.showToolbar)
         webView.webChromeClient = customWebChromeClient()
     }
 
     /**
      * Use WebViewClient to handle events on the WebView
      */
-    private fun customWebViewClient(hasNavigationButtons: Boolean): WebViewClient {
+    private fun customWebViewClient(
+        hasNavigationButtons: Boolean,
+        showURL: Boolean,
+    ): WebViewClient {
 
         val webViewClient = object : WebViewClient() {
 
@@ -185,7 +191,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                     // handle every http and https link by loading it in the WebView
                     urlString.startsWith("http:") || urlString.startsWith("https:") -> {
                         view?.loadUrl(urlString)
-                        urlText.text = urlString
+                        if (showURL) urlText.text = urlString
                         true
                     }
 

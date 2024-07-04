@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsSession
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEvents
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABRouter
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.canOpenURL
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABCustomTabsSessionHelper
@@ -17,15 +18,18 @@ import kotlinx.coroutines.launch
 class OSIABCustomTabsRouterAdapter(
     private val context: Context,
     private val lifecycleScope: CoroutineScope,
-    private val customTabsSessionHelper: OSIABCustomTabsSessionHelperInterface =
-        OSIABCustomTabsSessionHelper(),
-    private val options: OSIABCustomTabsOptions
+    private val customTabsSessionHelper: OSIABCustomTabsSessionHelperInterface = OSIABCustomTabsSessionHelper(),
+    private val options: OSIABCustomTabsOptions,
+    private val onBrowserPageLoaded: () -> Unit,
+    private val onBrowserFinished: () -> Unit
 ) : OSIABRouter<Boolean> {
     private var customTabsSession: CustomTabsSession? = null
 
+    // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the CustomTabs instance
+    private var isFirstLoad = true
+
     private fun buildCustomTabsIntent(): CustomTabsIntent {
         val builder = CustomTabsIntent.Builder(customTabsSession)
-        
         builder.setShowTitle(options.showTitle)
         builder.setUrlBarHidingEnabled(options.hideToolbarOnScroll)
 
@@ -107,7 +111,19 @@ class OSIABCustomTabsRouterAdapter(
                 }
 
                 if (null == customTabsSession) {
-                    customTabsSession = customTabsSessionHelper.generateNewCustomTabsSession(context)
+                    customTabsSession = customTabsSessionHelper.generateNewCustomTabsSession(context) { event ->
+                        when (event) {
+                            OSIABEvents.BrowserPageLoaded -> {
+                                if (isFirstLoad) {
+                                    onBrowserPageLoaded()
+                                    isFirstLoad = false
+                                }
+                            }
+                            OSIABEvents.BrowserFinished -> {
+                                onBrowserFinished()
+                            }
+                        }
+                    }
                 }
 
                 val customTabsIntent = buildCustomTabsIntent()

@@ -4,21 +4,21 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import androidx.browser.customtabs.CustomTabsCallback
 import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsService
 import androidx.browser.customtabs.CustomTabsServiceConnection
 import androidx.browser.customtabs.CustomTabsSession
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEvents
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
 
-interface OSIABCustomTabsSessionHelperInterface {
-    suspend fun generateNewCustomTabsSession(context: Context): CustomTabsSession?
-}
+class OSIABCustomTabsSessionHelper : OSIABCustomTabsSessionHelperInterface {
 
-class OSIABCustomTabsSessionHelper: OSIABCustomTabsSessionHelperInterface {
     private var customTabsSession: CustomTabsSession? = null
 
     companion object {
@@ -47,14 +47,14 @@ class OSIABCustomTabsSessionHelper: OSIABCustomTabsSessionHelperInterface {
         }
     }
 
-    private fun initializeCustomTabsSession(context: Context) {
+    private fun initializeCustomTabsSession(context: Context, onEventReceived: (OSIABEvents) -> Unit) {
         CustomTabsClient.bindCustomTabsService(
             context,
             getDefaultCustomTabsPackageName(context),
             object : CustomTabsServiceConnection() {
                 override fun onCustomTabsServiceConnected(name: ComponentName, client: CustomTabsClient) {
                     client.warmup(0L)
-                    customTabsSession = client.newSession(null)
+                    customTabsSession = client.newSession(CustomTabsCallbackImpl { onEventReceived(it) })
                 }
 
                 override fun onServiceDisconnected(name: ComponentName) {
@@ -83,11 +83,29 @@ class OSIABCustomTabsSessionHelper: OSIABCustomTabsSessionHelperInterface {
         }
     }
 
-    override suspend fun generateNewCustomTabsSession(context: Context): CustomTabsSession? {
+    private inner class CustomTabsCallbackImpl(private val onEventReceived: (OSIABEvents) -> Unit) :
+        CustomTabsCallback() {
+        override fun onNavigationEvent(navigationEvent: Int, extras: Bundle?) {
+            super.onNavigationEvent(navigationEvent, extras)
+            val browserEvent = when (navigationEvent) {
+                NAVIGATION_FINISHED -> OSIABEvents.BrowserPageLoaded
+                TAB_HIDDEN -> OSIABEvents.BrowserFinished
+                else -> return
+            }
+            onEventReceived(browserEvent)
+        }
+    }
+
+    /**
+     * Generates a new CustomTabsSession instance
+     * @param context Context to use when initializing the CustomTabsSession
+     * @param onEventReceived Callback to send the browser events (e.g. browser finished)
+     */
+    override suspend fun generateNewCustomTabsSession(context: Context, onEventReceived: (OSIABEvents) -> Unit): CustomTabsSession? {
         customTabsSession = null
 
         withTimeoutOrNull(2000) {
-            initializeCustomTabsSession(context)
+            initializeCustomTabsSession(context) { onEventReceived(it) }
             waitForCustomTabsSessionToConnect()
         }
 

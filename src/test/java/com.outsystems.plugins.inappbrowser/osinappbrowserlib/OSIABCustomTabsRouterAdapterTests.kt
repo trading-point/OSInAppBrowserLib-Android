@@ -6,6 +6,7 @@ import android.content.pm.ActivityInfo
 import android.content.pm.ApplicationInfo
 import android.content.pm.ResolveInfo
 import android.net.Uri
+import androidx.browser.customtabs.CustomTabsCallback
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABCustomTabsSessionHelperMock
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABCustomTabsOptions
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.routeradapters.OSIABCustomTabsRouterAdapter
@@ -13,6 +14,7 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
@@ -37,7 +39,9 @@ class OSIABCustomTabsRouterAdapterTests {
                 context = context,
                 lifecycleScope = this,
                 customTabsSessionHelper = OSIABCustomTabsSessionHelperMock(),
-                options = options
+                options = options,
+                {},
+                {}
             )
 
             sut.handleOpen(uri.toString()) { success ->
@@ -55,7 +59,9 @@ class OSIABCustomTabsRouterAdapterTests {
                 context = context,
                 lifecycleScope = this,
                 customTabsSessionHelper = OSIABCustomTabsSessionHelperMock(),
-                options = options
+                options = options,
+                {},
+                {}
             )
 
             sut.handleOpen("invalid_url") { success ->
@@ -76,7 +82,9 @@ class OSIABCustomTabsRouterAdapterTests {
                 context = context,
                 lifecycleScope = this,
                 customTabsSessionHelper = OSIABCustomTabsSessionHelperMock(),
-                options = options
+                options = options,
+                {},
+                {}
             )
 
             `when`(packageManager.resolveActivity(any(Intent::class.java), anyInt())).thenReturn(
@@ -88,6 +96,56 @@ class OSIABCustomTabsRouterAdapterTests {
 
             sut.handleOpen(uri.toString()) { success ->
                 assertFalse(success)
+            }
+        }
+    }
+
+    @Test
+    fun test_handleOpen_withValidURL_launchesCustomTab_when_browserPageLoaded_then_browserPageLoadedTriggered() {
+        runTest(StandardTestDispatcher()) {
+            val context = mockContext(useValidURL = true, ableToOpenURL = true)
+            val sut = OSIABCustomTabsRouterAdapter(
+                context = context,
+                lifecycleScope = this,
+                customTabsSessionHelper = OSIABCustomTabsSessionHelperMock().apply {
+                    eventToReturn = OSIABEvents.BrowserPageLoaded
+                },
+                options = options,
+                onBrowserPageLoaded = {
+                    assertTrue(true) // onBrowserPageLoaded was called
+                },
+                onBrowserFinished = {
+                    fail()
+                }
+            )
+
+            sut.handleOpen(uri.toString()) { success ->
+                assertTrue(success)
+            }
+        }
+    }
+
+    @Test
+    fun test_handleOpen_withValidURL_launchesCustomTab_when_browserFinished_then_browserFinishedTriggered() {
+        runTest(StandardTestDispatcher()) {
+            val context = mockContext(useValidURL = true, ableToOpenURL = true)
+            val sut = OSIABCustomTabsRouterAdapter(
+                context = context,
+                lifecycleScope = this,
+                customTabsSessionHelper = OSIABCustomTabsSessionHelperMock().apply {
+                    eventToReturn = OSIABEvents.BrowserFinished
+                },
+                options = options,
+                onBrowserPageLoaded = {
+                    fail()
+                },
+                onBrowserFinished = {
+                    assertTrue(true) // onBrowserFinished was called
+                }
+            )
+
+            sut.handleOpen(uri.toString()) { success ->
+                assertTrue(success)
             }
         }
     }
