@@ -1,6 +1,7 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib.views
 
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -101,7 +102,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
         reloadButton.setOnClickListener {
             currentUrl?.let {
                 webView.loadUrl(it)
-                hideErrorScreen()
             }
         }
 
@@ -174,14 +174,25 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
         val webViewClient = object : WebViewClient() {
 
+            override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+                super.onPageStarted(view, url, favicon)
+
+                if (!hasLoadError) {
+                    hideErrorScreen()
+                }
+
+            }
+
             override fun onPageFinished(view: WebView?, url: String?) {
                 if (isFirstLoad && !hasLoadError) {
                     sendWebViewEvent(OSIABEvents.BrowserPageLoaded)
                     isFirstLoad = false
                 }
+
                 // set back to false so that the next successful load
                 // if the load fails, onReceivedError takes care of setting it back to true
                 hasLoadError = false
+
                 // store cookies after page finishes loading
                 storeCookies()
                 if (hasNavigationButtons) updateNavigationButtons()
@@ -228,9 +239,13 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 error: WebResourceError?
             ) {
                 // show the default WebView error page
-                //super.onReceivedError(view, request, error)
-                showErrorScreen()
+                super.onReceivedError(view, request, error)
+
+                // we should check what error we got and only show the error screen for the errors we want to
+
                 hasLoadError = true
+                showErrorScreen()
+
             }
 
             /**
@@ -467,8 +482,8 @@ class OSIABWebViewActivity : AppCompatActivity() {
     }
 
     private fun hideErrorScreen() {
-        webView.isVisible = true
         errorView.isVisible = false
+        webView.isVisible = true
     }
 
 }
