@@ -24,7 +24,7 @@
         android:layout_centerHorizontal="true"
 
         android:layout_marginTop="8dp"
-        style="@style/ReloadButton"
+        android:drawableStart="?attr/reloadButtonSrc"
         android:drawablePadding="8dp"
         android:text="@string/reload_button_text"
         android:textAllCaps="false"
