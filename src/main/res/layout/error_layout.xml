@@ -5,7 +5,7 @@
     android:paddingTop="124dp"
     android:orientation="vertical"
     android:theme="@style/AppTheme.WebView"
-    >
+    android:background="?attr/toolbarColor" >
 
     <TextView
         android:id="@+id/error_text"
@@ -14,8 +14,7 @@
         android:layout_centerHorizontal="true"
         android:text="@string/error_screen_text"
         android:textColor="?attr/errorTextColor"
-        android:theme="@style/AppTheme.WebView"
-         />
+        android:theme="@style/AppTheme.WebView" />
 
     <Button
         android:id="@+id/reload_button"
