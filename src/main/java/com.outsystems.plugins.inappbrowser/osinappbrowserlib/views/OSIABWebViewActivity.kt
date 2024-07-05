@@ -111,7 +111,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         setupWebView()
         if (urlToOpen != null) {
             webView.loadUrl(urlToOpen)
-            showLoading()
+            showLoadingScreen()
         }
     }
 
@@ -175,7 +175,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
-                hideLoading()
+                hideLoadingScreen()
                 if (!hasLoadError) {
                     hideErrorScreen()
                 }
@@ -477,7 +477,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
             setOnClickListener {
                 currentUrl?.let {
                     webView.loadUrl(it)
-                    showLoading()
+                    showLoadingScreen()
                 }
             }
         }
@@ -503,13 +503,13 @@ class OSIABWebViewActivity : AppCompatActivity() {
         webView.isVisible = true
     }
 
-    private fun showLoading() {
+    private fun showLoadingScreen() {
         loadingView.isVisible = true
         errorView.isVisible = false
         webView.isVisible = false
     }
 
-    private fun hideLoading() {
+    private fun hideLoadingScreen() {
         loadingView.isVisible = false
         webView.isVisible = true
     }
