@@ -3,10 +3,12 @@ package com.outsystems.plugins.inappbrowser.osinappbrowserlib.views
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
+import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.webkit.CookieManager
+import android.webkit.SslErrorHandler
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -281,6 +283,16 @@ class OSIABWebViewActivity : AppCompatActivity() {
                     showErrorScreen()
                 }
             }
+        }
+
+        override fun onReceivedSslError(
+            view: WebView?,
+            handler: SslErrorHandler?,
+            error: SslError?
+        ) {
+            // keeping the current behaviour
+            super.onReceivedSslError(view, handler, error)
+            handler?.cancel()
         }
 
         /**
