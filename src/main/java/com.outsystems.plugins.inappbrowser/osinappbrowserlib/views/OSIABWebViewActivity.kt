@@ -227,6 +227,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
             // store cookies after page finishes loading
             storeCookies()
             if (hasNavigationButtons) updateNavigationButtons()
+            if (showURL) urlText.text = url
             currentUrl = url
             super.onPageFinished(view, url)
         }
