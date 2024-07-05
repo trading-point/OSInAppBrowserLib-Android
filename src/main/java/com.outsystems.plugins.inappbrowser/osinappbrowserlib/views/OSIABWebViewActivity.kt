@@ -285,16 +285,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
             }
         }
 
-        override fun onReceivedSslError(
-            view: WebView?,
-            handler: SslErrorHandler?,
-            error: SslError?
-        ) {
-            // keeping the current behaviour
-            super.onReceivedSslError(view, handler, error)
-            handler?.cancel()
-        }
-
         /**
          * Responsible for handling and launching intents based on a URL.
          * @param intentAction Action for the intent
