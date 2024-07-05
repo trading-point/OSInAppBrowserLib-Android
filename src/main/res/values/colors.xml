@@ -7,5 +7,6 @@
     <color name="textPrimaryDark">#FFFFFF</color>
     <color name="urlPrimary">#3F3F3F</color>
     <color name="urlPrimaryDark">#EAEAEA</color>
-    <color name="backgroundColor">#FFFFFF</color>
+    <color name="errorText">#626262</color>
+    <color name="errorTextDark">#E7E7E7</color>
 </resources>
