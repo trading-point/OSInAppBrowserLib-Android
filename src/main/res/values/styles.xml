@@ -52,4 +52,9 @@
         <item name="android:background">@android:color/transparent</item>
     </style>
 
+    <!-- Reload Button -->
+    <style name="ReloadButton">
+        <item name="android:drawableStart">?attr/reloadButtonSrc</item>
+    </style>
+
 </resources>
