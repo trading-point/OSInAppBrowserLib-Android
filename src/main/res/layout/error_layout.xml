@@ -2,19 +2,19 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
+    android:paddingTop="124dp"
     android:orientation="vertical"
-    android:background="@android:color/white">
+    android:theme="@style/AppTheme.WebView"
+    >
 
     <TextView
         android:id="@+id/error_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:layout_centerHorizontal="true"
-
         android:text="@string/error_screen_text"
-        android:textColor="@color/urlPrimary" />
+        android:theme="@style/AppTheme.WebView"
+         />
 
     <Button
         android:id="@+id/reload_button"
@@ -23,13 +23,14 @@
         android:layout_below="@id/error_text"
         android:layout_centerHorizontal="true"
 
-
         android:layout_marginTop="8dp"
         android:drawableStart="@drawable/reload_button_black"
         android:drawablePadding="8dp"
         android:text="@string/reload_button_text"
         android:textAllCaps="false"
-        android:textColor="@color/textPrimary"
+
+        android:theme="@style/AppTheme.WebView"
+
         android:background="@android:color/transparent"/>
 
 </RelativeLayout>
