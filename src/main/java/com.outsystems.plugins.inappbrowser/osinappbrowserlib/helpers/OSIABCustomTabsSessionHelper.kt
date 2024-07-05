@@ -99,7 +99,7 @@ class OSIABCustomTabsSessionHelper : OSIABCustomTabsSessionHelperInterface {
     /**
      * Generates a new CustomTabsSession instance
      * @param context Context to use when initializing the CustomTabsSession
-     * @param onEventReceived Callback to send the session events (e.g. navigation finished)
+     * @param onEventReceived Callback to send the browser events (e.g. browser finished)
      */
     override suspend fun generateNewCustomTabsSession(context: Context, onEventReceived: (OSIABEvents) -> Unit): CustomTabsSession? {
         customTabsSession = null
