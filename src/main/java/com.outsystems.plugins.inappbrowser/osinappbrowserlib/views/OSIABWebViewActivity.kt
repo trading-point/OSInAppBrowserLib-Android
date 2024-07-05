@@ -83,7 +83,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         //get elements in screen
         webView = findViewById(R.id.webview)
         errorView = findViewById(R.id.error_layout)
-        reloadButton = findViewById(R.id.reload_button)
+        reloadButton = createReloadButton()
         loadingView = findViewById(R.id.loading_layout)
         toolbar = findViewById(R.id.toolbar)
         bottomToolbar = findViewById(R.id.bottom_toolbar)
@@ -102,13 +102,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
         bottomToolbar.isVisible =
             options.showToolbar && options.toolbarPosition != OSIABToolbarPosition.TOP
-
-        reloadButton.setOnClickListener {
-            currentUrl?.let {
-                webView.loadUrl(it)
-                showLoading()
-            }
-        }
 
         // clear cache if necessary
         possiblyClearCacheOrSessionCookies()
@@ -473,6 +466,21 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private fun updateNavigationButton(button: ImageButton, isEnabled: Boolean) {
         button.isEnabled = isEnabled
         button.alpha = if (isEnabled) ENABLED_ALPHA else DISABLED_ALPHA
+    }
+
+    /**
+     * Helper function to create the reload button
+     * @return the Button after it has been created
+     */
+    private fun createReloadButton(): Button {
+        return findViewById<Button?>(R.id.reload_button).apply {
+            setOnClickListener {
+                currentUrl?.let {
+                    webView.loadUrl(it)
+                    showLoading()
+                }
+            }
+        }
     }
 
     /** Responsible for sending events using Kotlin Flows.
