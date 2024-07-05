@@ -13,6 +13,7 @@
         <item name="backgroundTintMode">@null</item>
         <item name="toolbarColor">@color/tool_bar_light_theme</item>
         <item name="android:background">@color/tool_bar_light_theme</item>
+        <item name="errorTextColor">@color/errorText</item>
     </style>
 
 </resources>
