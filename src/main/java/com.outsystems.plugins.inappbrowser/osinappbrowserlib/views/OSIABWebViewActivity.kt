@@ -55,6 +55,12 @@ class OSIABWebViewActivity : AppCompatActivity() {
         const val WEB_VIEW_OPTIONS_EXTRA = "WEB_VIEW_OPTIONS_EXTRA"
         const val DISABLED_ALPHA = 0.3f
         const val ENABLED_ALPHA = 1.0f
+        val errorsToHandle = listOf(
+            WebViewClient.ERROR_HOST_LOOKUP,
+            WebViewClient.ERROR_UNSUPPORTED_SCHEME,
+            WebViewClient.ERROR_BAD_URL
+        )
+
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -244,24 +250,17 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 request: WebResourceRequest?,
                 error: WebResourceError?
             ) {
-                // let all errors firstly be handled by the default error handling mechanism
+                // let all errors first be handled by the default error handling mechanism
                 super.onReceivedError(view, request, error)
 
-                // we should check what error we got and only show the error screen for the errors we want to
-
-                val errorsToHandle = mutableListOf(
-                    ERROR_HOST_LOOKUP,
-                    ERROR_UNSUPPORTED_SCHEME,
-                    ERROR_BAD_URL
-                )
-
+                // we only want to show the error screen for some errors (e.g. no internet)
+                // e.g. we don't want to show it for an error where an image fails to load
                 error?.let {
                     if (errorsToHandle.contains(error.errorCode)) {
                         hasLoadError = true
                         showErrorScreen()
                     }
                 }
-
             }
 
             /**
@@ -483,8 +482,8 @@ class OSIABWebViewActivity : AppCompatActivity() {
         button.alpha = if (isEnabled) ENABLED_ALPHA else DISABLED_ALPHA
     }
 
-    /** Responsible for sending broadcasts.
-     * @param event String identifying the event to send in the broadcast.
+    /** Responsible for sending events using Kotlin Flows.
+     * @param event String identifying the event to send.
      */
     private fun sendWebViewEvent(event: OSIABEvents) {
         lifecycleScope.launch {
