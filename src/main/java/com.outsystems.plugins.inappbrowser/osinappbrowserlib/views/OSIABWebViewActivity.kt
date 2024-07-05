@@ -224,7 +224,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
                     urlString.startsWith("http:") || urlString.startsWith("https:") -> {
                         view?.loadUrl(urlString)
                         if (showURL) urlText.text = urlString
-                        currentUrl = urlString
                         true
                     }
 
