@@ -60,7 +60,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
             WebViewClient.ERROR_UNSUPPORTED_SCHEME,
             WebViewClient.ERROR_BAD_URL
         )
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,12 +82,9 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
         //get elements in screen
         webView = findViewById(R.id.webview)
-
         errorView = findViewById(R.id.error_layout)
         reloadButton = findViewById(R.id.reload_button)
         loadingView = findViewById(R.id.loading_layout)
-
-
         toolbar = findViewById(R.id.toolbar)
         bottomToolbar = findViewById(R.id.bottom_toolbar)
 
@@ -186,13 +182,10 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
             override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
                 super.onPageStarted(view, url, favicon)
-
                 hideLoading()
-
                 if (!hasLoadError) {
                     hideErrorScreen()
                 }
-
             }
 
             override fun onPageFinished(view: WebView?, url: String?) {
@@ -250,7 +243,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 request: WebResourceRequest?,
                 error: WebResourceError?
             ) {
-                // let all errors first be handled by the default error handling mechanism
+                // let all errors first be handled by the WebView default error handling mechanism
                 super.onReceivedError(view, request, error)
 
                 // we only want to show the error screen for some errors (e.g. no internet)

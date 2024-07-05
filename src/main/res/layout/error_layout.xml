@@ -22,15 +22,12 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/error_text"
         android:layout_centerHorizontal="true"
-
         android:layout_marginTop="8dp"
         android:drawableStart="?attr/reloadButtonSrc"
         android:drawablePadding="8dp"
         android:text="@string/reload_button_text"
         android:textAllCaps="false"
-
         android:theme="@style/AppTheme.WebView"
-
         android:background="@android:color/transparent"/>
 
 </RelativeLayout>
