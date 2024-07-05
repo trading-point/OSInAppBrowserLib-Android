@@ -3,12 +3,10 @@ package com.outsystems.plugins.inappbrowser.osinappbrowserlib.views
 import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
-import android.net.http.SslError
 import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.webkit.CookieManager
-import android.webkit.SslErrorHandler
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -28,7 +26,6 @@ import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABUIHelp
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABToolbarPosition
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
 import kotlinx.coroutines.launch
-
 
 class OSIABWebViewActivity : AppCompatActivity() {
 
