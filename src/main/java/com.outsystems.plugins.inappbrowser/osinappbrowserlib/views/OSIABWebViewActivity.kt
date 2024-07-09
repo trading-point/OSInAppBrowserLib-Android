@@ -275,7 +275,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
             // we only want to show the error screen for some errors (e.g. no internet)
             // e.g. we don't want to show it for an error where an image fails to load
             error?.let {
-                if (errorsToHandle.contains(error.errorCode)) {
+                if (errorsToHandle.contains(it.errorCode)) {
                     hasLoadError = true
                     showErrorScreen()
                 }
