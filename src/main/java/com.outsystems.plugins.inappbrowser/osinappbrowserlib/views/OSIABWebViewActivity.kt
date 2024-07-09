@@ -176,6 +176,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private fun setupWebView() {
         webView.settings.javaScriptEnabled = true
         webView.settings.javaScriptCanOpenWindowsAutomatically = true
+        webView.settings.databaseEnabled = true
         webView.settings.domStorageEnabled = true
         webView.settings.loadWithOverviewMode = true
         webView.settings.useWideViewPort = true
