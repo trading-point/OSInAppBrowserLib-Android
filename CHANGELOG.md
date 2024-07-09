@@ -4,6 +4,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Features
+- Add permissions requests and opening file chooser to `OpenInWebView` feature (https://outsystemsrd.atlassian.net/browse/RMET-3534).
 - Add error and loading screens for `OpenInWebView` feature (https://outsystemsrd.atlassian.net/browse/RMET-3492).
 - Add browser events to `OpenInSystemBrowser` feature (https://outsystemsrd.atlassian.net/browse/RMET-3431).
 - Add `OpenInSystemBrowser` (https://outsystemsrd.atlassian.net/browse/RMET-3424).
