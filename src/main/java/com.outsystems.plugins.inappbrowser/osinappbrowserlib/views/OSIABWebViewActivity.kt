@@ -645,10 +645,10 @@ class OSIABWebViewActivity : AppCompatActivity() {
         val permissions = request.resources
         val permissionsNeeded = mutableListOf<String>()
 
-        if (permissions.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE)) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.CAMERA)
-            }
+        if (permissions.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE) &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+        ) {
+            permissionsNeeded.add(Manifest.permission.CAMERA)
         }
 
         if (permissions.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)) {
