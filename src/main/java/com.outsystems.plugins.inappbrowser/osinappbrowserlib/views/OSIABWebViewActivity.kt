@@ -378,9 +378,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 Log.d(LOG_TAG, "Failed to launch intent in WebView")
                 return false
             }
-
         }
-
     }
 
     /*
