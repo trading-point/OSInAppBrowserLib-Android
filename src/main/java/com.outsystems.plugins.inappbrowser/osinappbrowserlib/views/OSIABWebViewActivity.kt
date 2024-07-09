@@ -210,45 +210,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
      * Use WebChromeClient to handle JS events
      */
     private fun customWebChromeClient(): WebChromeClient {
-
-        val webChromeClient = object : WebChromeClient() {
-
-            // handle standard permissions (e.g. audio, camera)
-            override fun onPermissionRequest(request: PermissionRequest?) {
-                request?.let {
-                    handlePermissionRequest(it)
-                }
-            }
-
-            // specifically handle geolocation permission
-            override fun onGeolocationPermissionsShowPrompt(
-                origin: String?,
-                callback: GeolocationPermissions.Callback?
-            ) {
-                if (origin != null && callback != null) {
-                    handleGeolocationPermission(origin, callback)
-                }
-            }
-
-            // handle opening the file chooser within the WebView
-            override fun onShowFileChooser(
-                webView: WebView?,
-                filePathCallback: ValueCallback<Array<Uri>>?,
-                fileChooserParams: FileChooserParams?
-            ): Boolean {
-                this@OSIABWebViewActivity.filePathCallback = filePathCallback
-                val intent = fileChooserParams?.createIntent()
-                try {
-                    fileChooserLauncher.launch(intent)
-                } catch (e: Exception) {
-                    this@OSIABWebViewActivity.filePathCallback = null
-                    Log.d(LOG_TAG, "Error launching file chooser. Exception: ${e.message}")
-                    return false
-                }
-                return true
-            }
-        }
-        return webChromeClient
+        return OSIABWebChromeClient()
     }
 
     /**
@@ -419,6 +381,47 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
         }
 
+    }
+
+    /*
+     * Inner class with implementation for WebChromeClient
+     */
+    private inner class OSIABWebChromeClient : WebChromeClient() {
+
+        // handle standard permissions (e.g. audio, camera)
+        override fun onPermissionRequest(request: PermissionRequest?) {
+            request?.let {
+                handlePermissionRequest(it)
+            }
+        }
+
+        // specifically handle geolocation permission
+        override fun onGeolocationPermissionsShowPrompt(
+            origin: String?,
+            callback: GeolocationPermissions.Callback?
+        ) {
+            if (origin != null && callback != null) {
+                handleGeolocationPermission(origin, callback)
+            }
+        }
+
+        // handle opening the file chooser within the WebView
+        override fun onShowFileChooser(
+            webView: WebView?,
+            filePathCallback: ValueCallback<Array<Uri>>?,
+            fileChooserParams: FileChooserParams?
+        ): Boolean {
+            this@OSIABWebViewActivity.filePathCallback = filePathCallback
+            val intent = fileChooserParams?.createIntent()
+            try {
+                fileChooserLauncher.launch(intent)
+            } catch (e: Exception) {
+                this@OSIABWebViewActivity.filePathCallback = null
+                Log.d(LOG_TAG, "Error launching file chooser. Exception: ${e.message}")
+                return false
+            }
+            return true
+        }
     }
 
     /**
