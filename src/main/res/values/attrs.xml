@@ -2,6 +2,8 @@
 <resources>
     <attr name="backButtonSrc" format="reference" />
     <attr name="forwardButtonSrc" format="reference" />
+    <attr name="reloadButtonSrc" format="reference" />
     <attr name="urlColor" format="color" />
     <attr name="toolbarColor" format="color" />
+    <attr name="errorTextColor" format="color" />
 </resources>
