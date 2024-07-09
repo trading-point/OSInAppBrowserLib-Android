@@ -346,7 +346,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 }
                 // handle geo: links opening the appropriate app
                 urlString.startsWith("geo:") -> {
-                    launchIntent(Intent.ACTION_VIEW, urlString)
+                    launchIntent(urlString = urlString)
                 }
                 // handle intent: urls
                 urlString.startsWith("intent:") -> {
@@ -354,7 +354,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 }
                 // handle Google Play Store links opening the appropriate app
                 urlString.startsWith("https://play.google.com/store") || urlString.startsWith("market:") -> {
-                    launchIntent(Intent.ACTION_VIEW, urlString, true)
+                    launchIntent(urlString = urlString, isGooglePlayStore = true)
                 }
                 // handle every http and https link by loading it in the WebView
                 urlString.startsWith("http:") || urlString.startsWith("https:") -> {
@@ -362,7 +362,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
                     if (showURL) urlText.text = urlString
                     true
                 }
-
                 else -> false
             }
         }
