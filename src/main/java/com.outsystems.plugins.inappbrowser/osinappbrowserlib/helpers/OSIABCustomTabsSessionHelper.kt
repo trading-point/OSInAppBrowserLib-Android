@@ -12,6 +12,7 @@ import androidx.browser.customtabs.CustomTabsClient
 import androidx.browser.customtabs.CustomTabsService
 import androidx.browser.customtabs.CustomTabsServiceConnection
 import androidx.browser.customtabs.CustomTabsSession
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEvents
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.coroutines.resume
@@ -46,7 +47,7 @@ class OSIABCustomTabsSessionHelper : OSIABCustomTabsSessionHelperInterface {
         }
     }
 
-    private fun initializeCustomTabsSession(context: Context, onEventReceived: (Int) -> Unit) {
+    private fun initializeCustomTabsSession(context: Context, onEventReceived: (OSIABEvents) -> Unit) {
         CustomTabsClient.bindCustomTabsService(
             context,
             getDefaultCustomTabsPackageName(context),
@@ -82,20 +83,25 @@ class OSIABCustomTabsSessionHelper : OSIABCustomTabsSessionHelperInterface {
         }
     }
 
-    private inner class CustomTabsCallbackImpl(private val onEventReceived: (Int) -> Unit) :
+    private inner class CustomTabsCallbackImpl(private val onEventReceived: (OSIABEvents) -> Unit) :
         CustomTabsCallback() {
         override fun onNavigationEvent(navigationEvent: Int, extras: Bundle?) {
             super.onNavigationEvent(navigationEvent, extras)
-            onEventReceived(navigationEvent)
+            val browserEvent = when (navigationEvent) {
+                NAVIGATION_FINISHED -> OSIABEvents.BrowserPageLoaded
+                TAB_HIDDEN -> OSIABEvents.BrowserFinished
+                else -> return
+            }
+            onEventReceived(browserEvent)
         }
     }
 
     /**
      * Generates a new CustomTabsSession instance
      * @param context Context to use when initializing the CustomTabsSession
-     * @param onEventReceived Callback to send the session events (e.g. navigation finished)
+     * @param onEventReceived Callback to send the browser events (e.g. browser finished)
      */
-    override suspend fun generateNewCustomTabsSession(context: Context, onEventReceived: (Int) -> Unit): CustomTabsSession? {
+    override suspend fun generateNewCustomTabsSession(context: Context, onEventReceived: (OSIABEvents) -> Unit): CustomTabsSession? {
         customTabsSession = null
 
         withTimeoutOrNull(2000) {

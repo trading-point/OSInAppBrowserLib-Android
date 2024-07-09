@@ -6,11 +6,13 @@
         <item name="windowNoTitle">true</item>
         <item name="backButtonSrc">@drawable/back_button_white</item>
         <item name="forwardButtonSrc">@drawable/forward_button_white</item>
+        <item name="reloadButtonSrc">@drawable/reload_button_white</item>
         <item name="colorPrimary">@color/textPrimaryDark</item>
         <item name="urlColor">@color/urlPrimaryDark</item>
         <item name="backgroundTint">@null</item>
         <item name="backgroundTintMode">@null</item>
         <item name="toolbarColor">@color/tool_bar_dark_theme</item>
+        <item name="errorTextColor">@color/errorTextDark</item>
     </style>
 
 </resources>

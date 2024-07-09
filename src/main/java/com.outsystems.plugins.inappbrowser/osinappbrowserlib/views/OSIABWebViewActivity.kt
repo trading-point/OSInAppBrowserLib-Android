@@ -8,6 +8,8 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
+import android.graphics.Bitmap
+import android.view.View
 import android.webkit.CookieManager
 import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
@@ -17,6 +19,7 @@ import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Button
 import android.widget.ImageButton
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -34,7 +37,6 @@ import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABToolbar
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
 import kotlinx.coroutines.launch
 
-
 class OSIABWebViewActivity : AppCompatActivity() {
 
     private lateinit var webView: WebView
@@ -44,11 +46,18 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private lateinit var urlText: TextView
     private lateinit var toolbar: Toolbar
     private lateinit var bottomToolbar: Toolbar
+    private lateinit var errorView: View
+    private lateinit var reloadButton: Button
+    private lateinit var loadingView: View
     private lateinit var options: OSIABWebViewOptions
     private lateinit var appName: String
 
     // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the WebView
     private var isFirstLoad = true
+
+    // for the error screen
+    private var currentUrl: String? = null
+    private var hasLoadError: Boolean = false
 
     // permissions
     private var currentPermissionRequest: PermissionRequest? = null
@@ -78,6 +87,11 @@ class OSIABWebViewActivity : AppCompatActivity() {
         const val REQUEST_STANDARD_PERMISSION = 622
         const val REQUEST_LOCATION_PERMISSION = 623
         const val LOG_TAG = "OSIABWebViewActivity"
+        val errorsToHandle = listOf(
+            WebViewClient.ERROR_HOST_LOOKUP,
+            WebViewClient.ERROR_UNSUPPORTED_SCHEME,
+            WebViewClient.ERROR_BAD_URL
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -100,7 +114,9 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
         //get elements in screen
         webView = findViewById(R.id.webview)
-
+        errorView = findViewById(R.id.error_layout)
+        reloadButton = createReloadButton()
+        loadingView = findViewById(R.id.loading_layout)
         toolbar = findViewById(R.id.toolbar)
         bottomToolbar = findViewById(R.id.bottom_toolbar)
 
@@ -127,6 +143,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         setupWebView()
         if (urlToOpen != null) {
             webView.loadUrl(urlToOpen)
+            showLoadingScreen()
         }
     }
 
@@ -185,100 +202,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         hasNavigationButtons: Boolean,
         showURL: Boolean,
     ): WebViewClient {
-
-        val webViewClient = object : WebViewClient() {
-
-            override fun onPageFinished(view: WebView?, url: String?) {
-                if (isFirstLoad) {
-                    sendWebViewEvent(OSIABEvents.BrowserPageLoaded)
-                    isFirstLoad = false
-                }
-                // store cookies after page finishes loading
-                storeCookies()
-                if (hasNavigationButtons) updateNavigationButtons()
-                super.onPageFinished(view, url)
-            }
-
-            override fun shouldOverrideUrlLoading(
-                view: WebView?,
-                request: WebResourceRequest?
-            ): Boolean {
-                val urlString = request?.url.toString()
-                return when {
-                    // handle tel: urls opening the appropriate app
-                    urlString.startsWith("tel:") -> {
-                        launchIntent(intentAction = Intent.ACTION_DIAL, urlString = urlString)
-                    }
-                    // handle sms: and mailto: urls opening the appropriate app
-                    urlString.startsWith("sms:") || urlString.startsWith("mailto:") -> {
-                        launchIntent(intentAction = Intent.ACTION_SENDTO, urlString = urlString)
-                    }
-                    // handle geo: urls opening the appropriate app
-                    urlString.startsWith("geo:") -> {
-                        launchIntent(urlString = urlString)
-                    }
-                    // handle intent: urls
-                    urlString.startsWith("intent:") -> {
-                        launchIntent(urlString = urlString, isIntentUri = true)
-                    }
-                    // handle Google Play Store urls opening the appropriate app
-                    urlString.startsWith("https://play.google.com/store") || urlString.startsWith("market:") -> {
-                        launchIntent(urlString = urlString, isGooglePlayStore = true)
-                    }
-                    // handle every http and https url by loading it in the WebView
-                    urlString.startsWith("http:") || urlString.startsWith("https:") -> {
-                        view?.loadUrl(urlString)
-                        if (showURL) urlText.text = urlString
-                        true
-                    }
-                    else -> false
-                }
-            }
-
-            override fun onReceivedError(
-                view: WebView?,
-                request: WebResourceRequest?,
-                error: WebResourceError?
-            ) {
-                // show the default WebView error page
-                super.onReceivedError(view, request, error)
-            }
-
-            /**
-             * Responsible for handling and launching intents based on a URL.
-             * @param intentAction Action for the intent
-             * @param urlString URL to be processed
-             * @param isGooglePlayStore to determine if the URL is a Google Play Store link
-             * @param isIntentUri to determine if urlString is an intent URL
-             */
-            private fun launchIntent(
-                intentAction: String = Intent.ACTION_VIEW,
-                urlString: String,
-                isGooglePlayStore: Boolean = false,
-                isIntentUri: Boolean = false
-            ): Boolean {
-                try {
-                    val intent: Intent?
-                    if (isIntentUri) {
-                        intent = Intent.parseUri(urlString, Intent.URI_INTENT_SCHEME)
-                    } else {
-                        intent = Intent(intentAction).apply {
-                            data = Uri.parse(urlString)
-                            if (isGooglePlayStore) {
-                                setPackage("com.android.vending")
-                            }
-                        }
-                    }
-                    startActivity(intent)
-                    return true
-                } catch (e: Exception) {
-                    Log.d(LOG_TAG, "Failed to launch intent in WebView")
-                    return false
-                }
-
-            }
-        }
-        return webViewClient
+        return OSIABWebViewClient(hasNavigationButtons, showURL)
     }
 
     /**
@@ -331,6 +255,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
      */
     override fun onBackPressed() {
         if (options.hardwareBack && webView.canGoBack()) {
+            hideErrorScreen()
             webView.goBack()
         } else {
             sendWebViewEvent(OSIABEvents.BrowserFinished)
@@ -369,6 +294,131 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 geolocationOrigin = null
             }
         }
+    }
+
+    /*
+     * Inner class with implementation for WebViewClient
+     */
+    private inner class OSIABWebViewClient(
+        val hasNavigationButtons: Boolean,
+        val showURL: Boolean
+    ) : WebViewClient() {
+
+        override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+            super.onPageStarted(view, url, favicon)
+            hideLoadingScreen()
+            if (!hasLoadError) {
+                hideErrorScreen()
+            }
+        }
+
+        override fun onPageFinished(view: WebView?, url: String?) {
+            if (isFirstLoad && !hasLoadError) {
+                sendWebViewEvent(OSIABEvents.BrowserPageLoaded)
+                isFirstLoad = false
+            }
+
+            // set back to false so that the next successful load
+            // if the load fails, onReceivedError takes care of setting it back to true
+            hasLoadError = false
+
+            // store cookies after page finishes loading
+            storeCookies()
+            if (hasNavigationButtons) updateNavigationButtons()
+            if (showURL) urlText.text = url
+            currentUrl = url
+            super.onPageFinished(view, url)
+        }
+
+        override fun shouldOverrideUrlLoading(
+            view: WebView?,
+            request: WebResourceRequest?
+        ): Boolean {
+            val urlString = request?.url.toString()
+            return when {
+                // handle tel: links opening the appropriate app
+                urlString.startsWith("tel:") -> {
+                    launchIntent(Intent.ACTION_DIAL, urlString)
+                }
+                // handle sms: and mailto: links opening the appropriate app
+                urlString.startsWith("sms:") || urlString.startsWith("mailto:") -> {
+                    launchIntent(Intent.ACTION_SENDTO, urlString)
+                }
+                // handle geo: links opening the appropriate app
+                urlString.startsWith("geo:") -> {
+                    launchIntent(Intent.ACTION_VIEW, urlString)
+                }
+                // handle intent: urls
+                urlString.startsWith("intent:") -> {
+                    launchIntent(urlString = urlString, isIntentUri = true)
+                }
+                // handle Google Play Store links opening the appropriate app
+                urlString.startsWith("https://play.google.com/store") || urlString.startsWith("market:") -> {
+                    launchIntent(Intent.ACTION_VIEW, urlString, true)
+                }
+                // handle every http and https link by loading it in the WebView
+                urlString.startsWith("http:") || urlString.startsWith("https:") -> {
+                    view?.loadUrl(urlString)
+                    if (showURL) urlText.text = urlString
+                    true
+                }
+
+                else -> false
+            }
+        }
+
+        override fun onReceivedError(
+            view: WebView?,
+            request: WebResourceRequest?,
+            error: WebResourceError?
+        ) {
+            // let all errors first be handled by the WebView default error handling mechanism
+            super.onReceivedError(view, request, error)
+
+            // we only want to show the error screen for some errors (e.g. no internet)
+            // e.g. we don't want to show it for an error where an image fails to load
+            error?.let {
+                if (errorsToHandle.contains(it.errorCode)) {
+                    hasLoadError = true
+                    showErrorScreen()
+                }
+            }
+        }
+
+        /**
+         * Responsible for handling and launching intents based on a URL.
+         * @param intentAction Action for the intent
+         * @param urlString URL to be processed
+         * @param isGooglePlayStore to determine if the URL is a Google Play Store link
+         * @param isIntentUri to determine if urlString is an intent URL
+         */
+        private fun launchIntent(
+            intentAction: String = Intent.ACTION_VIEW,
+            urlString: String,
+            isGooglePlayStore: Boolean = false,
+            isIntentUri: Boolean = false
+        ): Boolean {
+            try {
+                val intent: Intent?
+                if (isIntentUri) {
+                    intent = Intent.parseUri(urlString, Intent.URI_INTENT_SCHEME)
+                } else {
+                    intent = Intent(intentAction).apply {
+                        data = Uri.parse(urlString)
+                        if (isGooglePlayStore) {
+                            setPackage("com.android.vending")
+                        }
+                    }
+                }
+                startActivity(intent)
+                return true
+            } catch (e: Exception) {
+                Log.d(LOG_TAG, "Failed to launch intent in WebView")
+                return false
+            }
+
+        }
+
     }
 
     /**
@@ -464,6 +514,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
             )
         backNavigationButton.setOnClickListener {
             if (webView.canGoBack()) {
+                hideErrorScreen()
                 webView.goBack()
             }
         }
@@ -476,6 +527,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 })
         forwardNavigationButton.setOnClickListener {
             if (webView.canGoForward()) {
+                hideErrorScreen()
                 webView.goForward()
             }
         }
@@ -539,13 +591,49 @@ class OSIABWebViewActivity : AppCompatActivity() {
     }
 
     /**
-     * Responsible for sending events.
-     * @param event Event to be sent with Kotlin Flows.
+     * Helper function to create the reload button
+     * @return the Button after it has been created
+     */
+    private fun createReloadButton(): Button {
+        return findViewById<Button?>(R.id.reload_button).apply {
+            setOnClickListener {
+                currentUrl?.let {
+                    webView.loadUrl(it)
+                    showLoadingScreen()
+                }
+            }
+        }
+    }
+
+    /** Responsible for sending events using Kotlin Flows.
+     * @param event String identifying the event to send.
      */
     private fun sendWebViewEvent(event: OSIABEvents) {
         lifecycleScope.launch {
             OSIABEvents.browserEvents.emit(event)
         }
+    }
+
+    private fun showErrorScreen() {
+        webView.isVisible = false
+        errorView.isVisible = true
+        loadingView.isVisible = false
+    }
+
+    private fun hideErrorScreen() {
+        errorView.isVisible = false
+        webView.isVisible = true
+    }
+
+    private fun showLoadingScreen() {
+        loadingView.isVisible = true
+        errorView.isVisible = false
+        webView.isVisible = false
+    }
+
+    private fun hideLoadingScreen() {
+        loadingView.isVisible = false
+        webView.isVisible = true
     }
 
     /**
@@ -593,8 +681,14 @@ class OSIABWebViewActivity : AppCompatActivity() {
             return
         }
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-            ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
         ) {
 
             ActivityCompat.requestPermissions(
