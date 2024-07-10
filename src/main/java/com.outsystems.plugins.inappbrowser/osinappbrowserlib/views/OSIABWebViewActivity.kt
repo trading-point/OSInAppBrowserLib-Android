@@ -72,11 +72,11 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private var filePathCallback: ValueCallback<Array<Uri>>? = null
     private val fileChooserLauncher =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-            if (result.resultCode == Activity.RESULT_OK) {
-                filePathCallback?.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(result.resultCode, result.data))
-            } else {
-                filePathCallback?.onReceiveValue(null)
-            }
+            filePathCallback?.onReceiveValue(
+                if (result.resultCode == Activity.RESULT_OK)
+                    WebChromeClient.FileChooserParams.parseResult(result.resultCode, result.data)
+                else null
+            )
             filePathCallback = null
         }
 
