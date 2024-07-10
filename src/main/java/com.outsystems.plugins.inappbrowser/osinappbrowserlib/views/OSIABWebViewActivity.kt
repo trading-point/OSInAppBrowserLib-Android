@@ -615,22 +615,29 @@ class OSIABWebViewActivity : AppCompatActivity() {
      * @param request PermissionRequest containing the permissions to request
      */
     private fun handlePermissionRequest(request: PermissionRequest) {
-        val permissions = request.resources
-        val permissionsNeeded = mutableListOf<String>()
         val requestPermissionMap = mapOf(
-            Pair(PermissionRequest.RESOURCE_VIDEO_CAPTURE, arrayOf(Manifest.permission.CAMERA)),
-            Pair(PermissionRequest.RESOURCE_AUDIO_CAPTURE, arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.MODIFY_AUDIO_SETTINGS))
+            Pair(
+                PermissionRequest.RESOURCE_VIDEO_CAPTURE,
+                arrayOf(Manifest.permission.CAMERA)),
+            Pair(
+                PermissionRequest.RESOURCE_AUDIO_CAPTURE,
+                arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.MODIFY_AUDIO_SETTINGS)
+            )
         )
 
-        requestPermissionMap.flatMap { (key, values) -> values.map { value -> Pair(key, value) } }
-            .forEach { (key, value) ->
-                if (permissions.contains(key) && ContextCompat.checkSelfPermission(
-                        this,
-                        value
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    permissionsNeeded.add(value)
+        val permissionsNeeded =
+            request.resources.fold(mutableListOf<String>()) { accumulator, permission ->
+                requestPermissionMap[permission]?.let { manifestPermissionArray ->
+                    manifestPermissionArray.forEach { manifestPermission ->
+                        if (ContextCompat.checkSelfPermission(
+                                this, manifestPermission
+                            ) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            accumulator.add(manifestPermission)
+                        }
+                    }
                 }
+                return@fold accumulator
             }
 
         if (permissionsNeeded.isNotEmpty()) {
