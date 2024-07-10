@@ -617,21 +617,21 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private fun handlePermissionRequest(request: PermissionRequest) {
         val permissions = request.resources
         val permissionsNeeded = mutableListOf<String>()
+        val requestPermissionMap = mapOf(
+            Pair(PermissionRequest.RESOURCE_VIDEO_CAPTURE, arrayOf(Manifest.permission.CAMERA)),
+            Pair(PermissionRequest.RESOURCE_AUDIO_CAPTURE, arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.MODIFY_AUDIO_SETTINGS))
+        )
 
-        if (permissions.contains(PermissionRequest.RESOURCE_VIDEO_CAPTURE) &&
-            ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-        ) {
-            permissionsNeeded.add(Manifest.permission.CAMERA)
-        }
-
-        if (permissions.contains(PermissionRequest.RESOURCE_AUDIO_CAPTURE)) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.RECORD_AUDIO)
+        requestPermissionMap.flatMap { (key, values) -> values.map { value -> Pair(key, value) } }
+            .forEach { (key, value) ->
+                if (permissions.contains(key) && ContextCompat.checkSelfPermission(
+                        this,
+                        value
+                    ) != PackageManager.PERMISSION_GRANTED
+                ) {
+                    permissionsNeeded.add(value)
+                }
             }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.MODIFY_AUDIO_SETTINGS) != PackageManager.PERMISSION_GRANTED) {
-                permissionsNeeded.add(Manifest.permission.MODIFY_AUDIO_SETTINGS)
-            }
-        }
 
         if (permissionsNeeded.isNotEmpty()) {
             ActivityCompat.requestPermissions(this, permissionsNeeded.toTypedArray(), REQUEST_STANDARD_PERMISSION)
