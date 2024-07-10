@@ -1,12 +1,19 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib.views
 
+import android.Manifest
+import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.graphics.Bitmap
 import android.view.View
 import android.webkit.CookieManager
+import android.webkit.GeolocationPermissions
+import android.webkit.PermissionRequest
+import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
@@ -16,10 +23,13 @@ import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEvents
@@ -50,11 +60,34 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private var currentUrl: String? = null
     private var hasLoadError: Boolean = false
 
+    // permissions
+    private var currentPermissionRequest: PermissionRequest? = null
+
+    // geolocation permissions
+    private var geolocationCallback: GeolocationPermissions.Callback? = null
+    private var geolocationOrigin: String? = null
+    private var wasGeolocationPermissionDenied = false
+
+    // for file chooser
+    private var filePathCallback: ValueCallback<Array<Uri>>? = null
+    private val fileChooserLauncher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            filePathCallback?.onReceiveValue(
+                if (result.resultCode == Activity.RESULT_OK)
+                    WebChromeClient.FileChooserParams.parseResult(result.resultCode, result.data)
+                else null
+            )
+            filePathCallback = null
+        }
+
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
         const val WEB_VIEW_OPTIONS_EXTRA = "WEB_VIEW_OPTIONS_EXTRA"
         const val DISABLED_ALPHA = 0.3f
         const val ENABLED_ALPHA = 1.0f
+        const val REQUEST_STANDARD_PERMISSION = 622
+        const val REQUEST_LOCATION_PERMISSION = 623
+        const val LOG_TAG = "OSIABWebViewActivity"
         val errorsToHandle = listOf(
             WebViewClient.ERROR_HOST_LOOKUP,
             WebViewClient.ERROR_UNSUPPORTED_SCHEME,
@@ -163,6 +196,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private fun setupWebView() {
         webView.settings.javaScriptEnabled = true
         webView.settings.javaScriptCanOpenWindowsAutomatically = true
+        webView.settings.databaseEnabled = true
         webView.settings.domStorageEnabled = true
         webView.settings.loadWithOverviewMode = true
         webView.settings.useWideViewPort = true
@@ -197,11 +231,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
      * Use WebChromeClient to handle JS events
      */
     private fun customWebChromeClient(): WebChromeClient {
-
-        val webChromeClient = object : WebChromeClient() {
-            // override any methods necessary
-        }
-        return webChromeClient
+        return OSIABWebChromeClient()
     }
 
     /**
@@ -219,6 +249,38 @@ class OSIABWebViewActivity : AppCompatActivity() {
     }
 
     /**
+     * Handle permission requests
+     */
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            REQUEST_STANDARD_PERMISSION -> {
+                val granted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+                currentPermissionRequest?.let {
+                    if (granted) {
+                        it.grant(it.resources)
+                    } else {
+                        it.deny()
+                    }
+                }
+                currentPermissionRequest = null
+            }
+            REQUEST_LOCATION_PERMISSION -> {
+                // only one of these needs to be granted: ACCESS_FINE_LOCATION or ACCESS_COARSE_LOCATION
+                val granted = grantResults.any { it == PackageManager.PERMISSION_GRANTED }
+                wasGeolocationPermissionDenied = !granted
+                geolocationCallback?.invoke(geolocationOrigin, granted, false)
+                geolocationCallback = null
+                geolocationOrigin = null
+            }
+        }
+    }
+
+    /*
      * Inner class with implementation for WebViewClient
      */
     private inner class OSIABWebViewClient(
@@ -268,11 +330,15 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 }
                 // handle geo: links opening the appropriate app
                 urlString.startsWith("geo:") -> {
-                    launchIntent(Intent.ACTION_VIEW, urlString)
+                    launchIntent(urlString = urlString)
+                }
+                // handle intent: urls
+                urlString.startsWith("intent:") -> {
+                    launchIntent(urlString = urlString, isIntentUri = true)
                 }
                 // handle Google Play Store links opening the appropriate app
                 urlString.startsWith("https://play.google.com/store") || urlString.startsWith("market:") -> {
-                    launchIntent(Intent.ACTION_VIEW, urlString, true)
+                    launchIntent(urlString = urlString, isGooglePlayStore = true)
                 }
                 // handle every http and https link by loading it in the WebView
                 urlString.startsWith("http:") || urlString.startsWith("https:") -> {
@@ -280,7 +346,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
                     if (showURL) urlText.text = urlString
                     true
                 }
-
                 else -> false
             }
         }
@@ -308,22 +373,74 @@ class OSIABWebViewActivity : AppCompatActivity() {
          * @param intentAction Action for the intent
          * @param urlString URL to be processed
          * @param isGooglePlayStore to determine if the URL is a Google Play Store link
+         * @param isIntentUri to determine if urlString is an intent URL
          */
         private fun launchIntent(
-            intentAction: String,
+            intentAction: String = Intent.ACTION_VIEW,
             urlString: String,
-            isGooglePlayStore: Boolean = false
+            isGooglePlayStore: Boolean = false,
+            isIntentUri: Boolean = false
         ): Boolean {
-            val intent = Intent(intentAction).apply {
-                data = Uri.parse(urlString)
-                if (isGooglePlayStore) {
-                    setPackage("com.android.vending")
+            try {
+                val intent: Intent?
+                if (isIntentUri) {
+                    intent = Intent.parseUri(urlString, Intent.URI_INTENT_SCHEME)
+                } else {
+                    intent = Intent(intentAction).apply {
+                        data = Uri.parse(urlString)
+                        if (isGooglePlayStore) {
+                            setPackage("com.android.vending")
+                        }
+                    }
                 }
+                startActivity(intent)
+                return true
+            } catch (e: Exception) {
+                Log.d(LOG_TAG, "Failed to launch intent in WebView")
+                return false
             }
-            startActivity(intent)
-            return true
+        }
+    }
+
+    /*
+     * Inner class with implementation for WebChromeClient
+     */
+    private inner class OSIABWebChromeClient : WebChromeClient() {
+
+        // handle standard permissions (e.g. audio, camera)
+        override fun onPermissionRequest(request: PermissionRequest?) {
+            request?.let {
+                handlePermissionRequest(it)
+            }
         }
 
+        // specifically handle geolocation permission
+        override fun onGeolocationPermissionsShowPrompt(
+            origin: String?,
+            callback: GeolocationPermissions.Callback?
+        ) {
+            if (origin != null && callback != null) {
+                handleGeolocationPermission(origin, callback)
+            }
+        }
+
+        // handle opening the file chooser within the WebView
+        override fun onShowFileChooser(
+            webView: WebView?,
+            filePathCallback: ValueCallback<Array<Uri>>?,
+            fileChooserParams: FileChooserParams?
+        ): Boolean {
+            this@OSIABWebViewActivity.filePathCallback = filePathCallback
+            val intent = fileChooserParams?.createIntent()
+            try {
+                fileChooserLauncher.launch(intent)
+            } catch (e: Exception) {
+                this@OSIABWebViewActivity.filePathCallback = null
+                Log.d(LOG_TAG, "Error launching file chooser. Exception: ${e.message}")
+                return false
+            }
+            return true
+        }
     }
 
     /**
@@ -491,6 +608,84 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private fun hideLoadingScreen() {
         loadingView.isVisible = false
         webView.isVisible = true
+    }
+
+    /**
+     * Responsible for handling standard permission requests coming from the WebView
+     * @param request PermissionRequest containing the permissions to request
+     */
+    private fun handlePermissionRequest(request: PermissionRequest) {
+        val requestPermissionMap = mapOf(
+            Pair(
+                PermissionRequest.RESOURCE_VIDEO_CAPTURE,
+                arrayOf(Manifest.permission.CAMERA)),
+            Pair(
+                PermissionRequest.RESOURCE_AUDIO_CAPTURE,
+                arrayOf(Manifest.permission.RECORD_AUDIO, Manifest.permission.MODIFY_AUDIO_SETTINGS)
+            )
+        )
+
+        val permissionsNeeded =
+            request.resources.fold(mutableListOf<String>()) { accumulator, permission ->
+                requestPermissionMap[permission]?.let { manifestPermissionArray ->
+                    manifestPermissionArray.forEach { manifestPermission ->
+                        if (ContextCompat.checkSelfPermission(
+                                this, manifestPermission
+                            ) != PackageManager.PERMISSION_GRANTED
+                        ) {
+                            accumulator.add(manifestPermission)
+                        }
+                    }
+                }
+                return@fold accumulator
+            }
+
+        if (permissionsNeeded.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, permissionsNeeded.toTypedArray(), REQUEST_STANDARD_PERMISSION)
+            currentPermissionRequest = request
+        } else {
+            request.grant(request.resources)
+        }
+    }
+
+    /**
+     * Responsible for handling geolocation permission requests coming from the WebView
+     * @param origin From onGeolocationPermissionsShowPrompt, identifying the origin of the request
+     * @param callback Holds the callback of the permission request
+     */
+    private fun handleGeolocationPermission(
+        origin: String,
+        callback: GeolocationPermissions.Callback
+    ) {
+        if (wasGeolocationPermissionDenied) {
+            callback.invoke(origin, false, false)
+            return
+        }
+
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED &&
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
+                REQUEST_LOCATION_PERMISSION
+            )
+            geolocationCallback = callback
+            geolocationOrigin = origin
+
+        } else {
+            callback.invoke(origin, true, false)
+        }
     }
 
 }
