@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import android.util.Log
 import android.graphics.Bitmap
 import android.view.View
@@ -120,7 +121,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         loadingView = findViewById(R.id.loading_layout)
         toolbar = findViewById(R.id.toolbar)
         bottomToolbar = findViewById(R.id.bottom_toolbar)
-        
+
         closeButton = findViewById(R.id.close_button)
         closeButton.text = options.closeButtonText.ifBlank { "Close" }
         closeButton.setOnClickListener {
@@ -489,6 +490,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         val navigationView: ConstraintLayout = content.findViewById(R.id.navigation_view)
 
         val nav: LinearLayout = findViewById(R.id.navigation_buttons)
+        urlText = content.findViewById(R.id.url_text)
 
         if (toolbarPosition == OSIABToolbarPosition.BOTTOM) {
             content.removeView(navigationView)
@@ -506,15 +508,34 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 0
             )
             set.applyTo(content)
+
         }
 
-        if (!showNavigationButtons) navigationView.removeView(nav)
-        else defineNavigationButtons(isLeftRight, content)
+        if (!showNavigationButtons) {
+            navigationView.removeView(nav)
+        } else defineNavigationButtons(isLeftRight, content)
 
-        urlText = content.findViewById(R.id.url_text)
+
         if (!showURL) navigationView.removeView(urlText)
-        else urlText.text = url
+        else {
+            urlText.text = url
+            if (!showNavigationButtons) {
+                val set = ConstraintSet()
+                set.clone(navigationView)
+                set.connect(
+                    urlText.id,
+                    ConstraintSet.END,
+                    ConstraintSet.PARENT_ID,
+                    ConstraintSet.END
+                )
+                if (toolbarPosition == OSIABToolbarPosition.TOP)
+                    set.clear(urlText.id, ConstraintSet.START)
+                set.applyTo(navigationView)
 
+                if (toolbarPosition == OSIABToolbarPosition.TOP) urlText.gravity = Gravity.START
+            } else if (toolbarPosition == OSIABToolbarPosition.BOTTOM)
+                urlText.gravity = Gravity.START
+        }
 
         if (isLeftRight) {
             bottomToolbar.layoutDirection = View.LAYOUT_DIRECTION_RTL
