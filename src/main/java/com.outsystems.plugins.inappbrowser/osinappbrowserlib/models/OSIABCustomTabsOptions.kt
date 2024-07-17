@@ -7,4 +7,4 @@ data class OSIABCustomTabsOptions(
     val bottomSheetOptions: OSIABBottomSheet? = null,
     val startAnimation: OSIABAnimation = OSIABAnimation.FADE_IN,
     val exitAnimation: OSIABAnimation = OSIABAnimation.FADE_OUT
-)
+) : OSIABOptions

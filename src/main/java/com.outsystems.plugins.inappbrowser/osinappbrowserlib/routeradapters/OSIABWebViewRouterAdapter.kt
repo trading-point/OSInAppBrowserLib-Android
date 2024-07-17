@@ -3,24 +3,63 @@ package com.outsystems.plugins.inappbrowser.osinappbrowserlib.routeradapters
 import android.content.Context
 import android.content.Intent
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEvents
-import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABRouter
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABFlowHelperInterface
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.views.OSIABWebViewActivity
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
+import java.util.UUID
 
 class OSIABWebViewRouterAdapter(
-    private val context: Context,
-    private val lifecycleScope: CoroutineScope,
-    private val options: OSIABWebViewOptions,
-    private val flowHelper: OSIABFlowHelperInterface,
-    private val onBrowserPageLoaded: () -> Unit,
-    private val onBrowserFinished: () -> Unit
-) : OSIABRouter<Boolean> {
+    context: Context,
+    lifecycleScope: CoroutineScope,
+    options: OSIABWebViewOptions,
+    flowHelper: OSIABFlowHelperInterface,
+    onBrowserPageLoaded: () -> Unit,
+    onBrowserFinished: () -> Unit,
+) : OSIABBaseRouterAdapter<OSIABWebViewOptions, Boolean>(
+    context = context,
+    lifecycleScope = lifecycleScope,
+    options = options,
+    flowHelper = flowHelper,
+    onBrowserPageLoaded = onBrowserPageLoaded,
+    onBrowserFinished = onBrowserFinished
+) {
+    private val browserId = UUID.randomUUID().toString()
 
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
         const val WEB_VIEW_OPTIONS_EXTRA = "WEB_VIEW_OPTIONS_EXTRA"
+    }
+
+    private var webViewActivityRef: WeakReference<OSIABWebViewActivity>? = null
+
+    private fun setWebViewActivity(activity: OSIABWebViewActivity?) {
+        webViewActivityRef = if (activity == null) {
+            null
+        } else {
+            WeakReference(activity)
+        }
+    }
+
+    private fun getWebViewActivity(): OSIABWebViewActivity? {
+        return webViewActivityRef?.get()
+    }
+
+    override fun close(completionHandler: (Boolean) -> Unit) {
+        getWebViewActivity().let { activity ->
+            if(activity == null) {
+                completionHandler(false)
+            }
+            else {
+                activity.finish()
+                setWebViewActivity(null)
+                onBrowserFinished()
+                completionHandler(true)
+            }
+        }
     }
 
     /**
@@ -29,27 +68,40 @@ class OSIABWebViewRouterAdapter(
      * @param completionHandler The callback with the result of opening the url.
      */
     override fun handleOpen(url: String, completionHandler: (Boolean) -> Unit) {
-        try {
-            context.startActivity(
-                Intent(
-                    context, OSIABWebViewActivity::class.java
-                ).apply {
-                    putExtra(WEB_VIEW_URL_EXTRA, url)
-                    putExtra(WEB_VIEW_OPTIONS_EXTRA, options)
+        lifecycleScope.launch {
+            try {
+                // Collect the browser events
+                var eventsJob: Job? = null
+                eventsJob = flowHelper.listenToEvents(browserId, lifecycleScope) { event ->
+                    when (event) {
+                        is OSIABEvents.OSIABWebViewEvent -> {
+                            setWebViewActivity(event.activity)
+                            completionHandler(true)
+                        }
+                        is OSIABEvents.BrowserPageLoaded -> {
+                            onBrowserPageLoaded()
+                        }
+                        is OSIABEvents.BrowserFinished -> {
+                            onBrowserFinished()
+                            eventsJob?.cancel()
+                        }
+                        else -> {}
+                    }
                 }
-            )
-            completionHandler(true)
 
-            // Collect the browser events
-            flowHelper.listenToEvents(lifecycleScope) { event ->
-                when (event) {
-                    is OSIABEvents.BrowserPageLoaded -> { onBrowserPageLoaded() }
-                    is OSIABEvents.BrowserFinished -> { onBrowserFinished() }
-                }
+                context.startActivity(
+                    Intent(
+                        context, OSIABWebViewActivity::class.java
+                    ).apply {
+                        putExtra(OSIABEvents.EXTRA_BROWSER_ID, browserId)
+                        putExtra(WEB_VIEW_URL_EXTRA, url)
+                        putExtra(WEB_VIEW_OPTIONS_EXTRA, options)
+                    }
+                )
+
+            } catch (e: Exception) {
+                completionHandler(false)
             }
-
-        } catch (e: Exception) {
-            completionHandler(false)
         }
     }
 }

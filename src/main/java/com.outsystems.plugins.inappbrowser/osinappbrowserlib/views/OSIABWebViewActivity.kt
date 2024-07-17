@@ -34,6 +34,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEvents
+import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEvents.OSIABWebViewEvent
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.R
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABToolbarPosition
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.models.OSIABWebViewOptions
@@ -53,6 +54,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
     private lateinit var loadingView: View
     private lateinit var options: OSIABWebViewOptions
     private lateinit var appName: String
+    private lateinit var browserId: String
 
     // for the browserPageLoaded event, which we only want to trigger on the first URL loaded in the WebView
     private var isFirstLoad = true
@@ -99,6 +101,10 @@ class OSIABWebViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        browserId = intent.getStringExtra(OSIABEvents.EXTRA_BROWSER_ID) ?: ""
+
+        sendWebViewEvent(OSIABWebViewEvent(browserId,this@OSIABWebViewActivity))
+
         appName = applicationInfo.loadLabel(packageManager).toString()
 
         // get parameters from intent extras
@@ -125,7 +131,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
         closeButton = findViewById(R.id.close_button)
         closeButton.text = options.closeButtonText.ifBlank { "Close" }
         closeButton.setOnClickListener {
-            sendWebViewEvent(OSIABEvents.BrowserFinished)
+            sendWebViewEvent(OSIABEvents.BrowserFinished(browserId))
             webView.destroy()
             finish()
         }
@@ -243,7 +249,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
             hideErrorScreen()
             webView.goBack()
         } else {
-            sendWebViewEvent(OSIABEvents.BrowserFinished)
+            sendWebViewEvent(OSIABEvents.BrowserFinished(browserId))
             webView.destroy()
             onBackPressedDispatcher.onBackPressed()
         }
@@ -299,7 +305,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
         override fun onPageFinished(view: WebView?, url: String?) {
             if (isFirstLoad && !hasLoadError) {
-                sendWebViewEvent(OSIABEvents.BrowserPageLoaded)
+                sendWebViewEvent(OSIABEvents.BrowserPageLoaded(browserId))
                 isFirstLoad = false
             }
 
@@ -601,11 +607,11 @@ class OSIABWebViewActivity : AppCompatActivity() {
     }
 
     /** Responsible for sending events using Kotlin Flows.
-     * @param event String identifying the event to send.
+     * @param event object to broadcast to the event bus
      */
     private fun sendWebViewEvent(event: OSIABEvents) {
         lifecycleScope.launch {
-            OSIABEvents.browserEvents.emit(event)
+            OSIABEvents.postEvent(event)
         }
     }
 

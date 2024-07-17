@@ -17,4 +17,4 @@ data class OSIABWebViewOptions(
     @SerializedName("hardwareBack") val hardwareBack: Boolean = true,
     @SerializedName("pauseMedia") val pauseMedia: Boolean = true,
     @SerializedName("customUserAgent") val customUserAgent: String? = null
-) : Serializable
+) : OSIABOptions, Serializable

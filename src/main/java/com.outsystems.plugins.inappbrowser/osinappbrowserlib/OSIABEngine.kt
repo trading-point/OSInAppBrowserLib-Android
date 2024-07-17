@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 
 class OSIABEngine {
-
     /**
      * Trigger the external browser to open the passed `url`.
      * @param externalBrowserRouter Router responsible for handling the external browser opening logic.
