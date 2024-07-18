@@ -1,3 +1,0 @@
-# OSInAppBrowserLib
-
-Welcome to **OSInAppBrowserLib**. 
