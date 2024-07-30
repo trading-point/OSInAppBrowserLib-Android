@@ -540,7 +540,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
                 if (toolbarPosition == OSIABToolbarPosition.TOP) urlText.gravity = Gravity.START
             } else if (toolbarPosition == OSIABToolbarPosition.BOTTOM)
-                urlText.gravity = Gravity.START
+                urlText.gravity = if (isLeftRight) Gravity.END else Gravity.START
         }
 
         if (isLeftRight) {
