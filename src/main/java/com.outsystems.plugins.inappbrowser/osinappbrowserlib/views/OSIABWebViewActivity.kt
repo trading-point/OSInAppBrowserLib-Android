@@ -514,40 +514,52 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 0
             )
             set.applyTo(content)
-
         }
 
         if (!showNavigationButtons) {
             navigationView.removeView(nav)
         } else defineNavigationButtons(isLeftRight, content)
 
-
         if (!showURL) navigationView.removeView(urlText)
-        else {
-            urlText.text = url
-            if (!showNavigationButtons) {
-                val set = ConstraintSet()
-                set.clone(navigationView)
-                set.connect(
-                    urlText.id,
-                    ConstraintSet.END,
-                    ConstraintSet.PARENT_ID,
-                    ConstraintSet.END
-                )
-                if (toolbarPosition == OSIABToolbarPosition.TOP)
-                    set.clear(urlText.id, ConstraintSet.START)
-                set.applyTo(navigationView)
-
-                if (toolbarPosition == OSIABToolbarPosition.TOP) urlText.gravity = Gravity.START
-            } else if (toolbarPosition == OSIABToolbarPosition.BOTTOM)
-                urlText.gravity = if (isLeftRight) Gravity.END else Gravity.START
-        }
+        else defineURLView(url, showNavigationButtons, navigationView, toolbarPosition, isLeftRight)
 
         if (isLeftRight) {
             bottomToolbar.layoutDirection = View.LAYOUT_DIRECTION_RTL
             toolbar.layoutDirection = View.LAYOUT_DIRECTION_RTL
-
         }
+    }
+
+    /**
+     * Sets the URL content and position
+     * @param url String to set as the URL element text
+     * @param showNavigationButtons to use when determining the position of the URL text
+     * @param navigationView ConstraintLayout view representing the navigation view (nav buttons and URL)
+     * @param toolbarPosition the toolbar position on screen, to determine the position of the URL
+     * @param isLeftRight to use when determining the position of the URL text
+     */
+    private fun defineURLView(
+        url: String,
+        showNavigationButtons: Boolean,
+        navigationView: ConstraintLayout,
+        toolbarPosition: OSIABToolbarPosition,
+        isLeftRight: Boolean) {
+        urlText.text = url
+        if (!showNavigationButtons) {
+            val set = ConstraintSet()
+            set.clone(navigationView)
+            set.connect(
+                urlText.id,
+                ConstraintSet.END,
+                ConstraintSet.PARENT_ID,
+                ConstraintSet.END
+            )
+            if (toolbarPosition == OSIABToolbarPosition.TOP)
+                set.clear(urlText.id, ConstraintSet.START)
+            set.applyTo(navigationView)
+
+            if (toolbarPosition == OSIABToolbarPosition.TOP) urlText.gravity = Gravity.START
+        } else if (toolbarPosition == OSIABToolbarPosition.BOTTOM)
+            urlText.gravity = if (isLeftRight) Gravity.END else Gravity.START
     }
 
     /**
