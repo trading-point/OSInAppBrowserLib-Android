@@ -514,12 +514,13 @@ class OSIABWebViewActivity : AppCompatActivity() {
                 0
             )
             set.applyTo(content)
+
         }
 
         if (!showNavigationButtons) {
             navigationView.removeView(nav)
         } else defineNavigationButtons(isLeftRight, content)
-
+        
         if (!showURL) navigationView.removeView(urlText)
         else defineURLView(url, showNavigationButtons, navigationView, toolbarPosition, isLeftRight)
 
@@ -542,16 +543,14 @@ class OSIABWebViewActivity : AppCompatActivity() {
         showNavigationButtons: Boolean,
         navigationView: ConstraintLayout,
         toolbarPosition: OSIABToolbarPosition,
-        isLeftRight: Boolean) {
+        isLeftRight: Boolean
+    ) {
         urlText.text = url
         if (!showNavigationButtons) {
             val set = ConstraintSet()
             set.clone(navigationView)
             set.connect(
-                urlText.id,
-                ConstraintSet.END,
-                ConstraintSet.PARENT_ID,
-                ConstraintSet.END
+                urlText.id, ConstraintSet.END, ConstraintSet.PARENT_ID, ConstraintSet.END
             )
             if (toolbarPosition == OSIABToolbarPosition.TOP)
                 set.clear(urlText.id, ConstraintSet.START)
