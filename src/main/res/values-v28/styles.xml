@@ -8,5 +8,7 @@
         <item name="android:id">@id/close_button</item>
         <item name="android:backgroundTint">@android:color/transparent</item>
         <item name="android:background">@android:color/transparent</item>
+        <item name="android:paddingStart">8dp</item>
+        <item name="android:paddingEnd">8dp</item>
     </style>
 </resources>

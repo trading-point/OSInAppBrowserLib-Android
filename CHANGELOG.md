@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixes
+- Fix position of elements in bottom toolbar when 'isLeftRight' is true in `OpenInWebView` (https://outsystemsrd.atlassian.net/browse/RMET-3560)
+
 ### Features
 - Add `Close` feature for WebView and System Browser (https://outsystemsrd.atlassian.net/browse/RMET-3428).
 - Add permissions requests and opening file chooser to `OpenInWebView` feature (https://outsystemsrd.atlassian.net/browse/RMET-3534).
