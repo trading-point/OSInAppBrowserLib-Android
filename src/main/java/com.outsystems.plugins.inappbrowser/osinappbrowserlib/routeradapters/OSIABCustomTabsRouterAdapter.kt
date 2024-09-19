@@ -6,7 +6,6 @@ import android.net.Uri
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.browser.customtabs.CustomTabsSession
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.OSIABEvents
-import com.outsystems.plugins.inappbrowser.osinappbrowserlib.canOpenURL
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABCustomTabsSessionHelper
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABCustomTabsSessionHelperInterface
 import com.outsystems.plugins.inappbrowser.osinappbrowserlib.helpers.OSIABFlowHelperInterface
@@ -145,11 +144,6 @@ class OSIABCustomTabsRouterAdapter(
         lifecycleScope.launch {
             try {
                 val uri = Uri.parse(url)
-                if (!context.canOpenURL(uri)) {
-                    completionHandler(false)
-                    return@launch
-                }
-
                 customTabsSessionHelper.generateNewCustomTabsSession(
                     browserId,
                     context,
