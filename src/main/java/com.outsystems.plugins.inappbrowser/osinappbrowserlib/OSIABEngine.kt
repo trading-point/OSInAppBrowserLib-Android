@@ -49,8 +49,3 @@ class OSIABEngine {
         return webViewRouter.handleOpen(url, completionHandler)
     }
 }
-
-fun Context.canOpenURL(uri: Uri): Boolean {
-    val intent = Intent(Intent.ACTION_VIEW, uri)
-    return intent.resolveActivity(packageManager) != null
-}
