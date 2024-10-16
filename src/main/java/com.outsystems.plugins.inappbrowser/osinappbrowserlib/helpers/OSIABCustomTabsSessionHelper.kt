@@ -47,6 +47,7 @@ class OSIABCustomTabsSessionHelper: OSIABCustomTabsSessionHelperInterface {
                 }
 
                 override fun onServiceDisconnected(name: ComponentName) {
+                    context.unbindService(this)
                     customTabsSessionCallback(null)
                 }
             }
@@ -60,6 +61,8 @@ class OSIABCustomTabsSessionHelper: OSIABCustomTabsSessionHelperInterface {
     ) : CustomTabsCallback() {
 
         private var isCustomTabsActivityOnTop = false
+        private var pendingTabHiddenEvent = false
+
         init {
             var browserEventsJob: Job? = null
 
@@ -68,9 +71,16 @@ class OSIABCustomTabsSessionHelper: OSIABCustomTabsSessionHelperInterface {
                     when (event.action) {
                         OSIABCustomTabsControllerActivity.EVENT_CUSTOM_TABS_RESUMED -> {
                             isCustomTabsActivityOnTop = true
+                            if (pendingTabHiddenEvent) {
+                                pendingTabHiddenEvent = false
+                                lifecycleScope.launch {
+                                    OSIABEvents.postEvent(OSIABEvents.BrowserFinished(browserId))
+                                }
+                            }
                         }
                         OSIABCustomTabsControllerActivity.EVENT_CUSTOM_TABS_PAUSED -> {
                             isCustomTabsActivityOnTop = false
+                            pendingTabHiddenEvent = false
                         }
                         OSIABCustomTabsControllerActivity.EVENT_CUSTOM_TABS_DESTROYED -> {
                             browserEventsJob?.cancel()
@@ -89,6 +99,7 @@ class OSIABCustomTabsSessionHelper: OSIABCustomTabsSessionHelperInterface {
                     }
                     else {
                         // App not open but custom tabs is hidden (home button, recent apps, etc.)
+                        pendingTabHiddenEvent = true
                         return
                     }
                 }
