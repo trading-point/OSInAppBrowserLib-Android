@@ -1,12 +1,12 @@
 buildscript {
-    ext.kotlin_version = "1.9.21"
+    ext.kotlin_version = "1.9.24"
     ext.jacocoVersion = '0.8.7'
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.2.2'
+        classpath 'com.android.tools.build:gradle:8.7.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "org.jacoco:org.jacoco.core:$jacocoVersion"
     }
@@ -30,11 +30,11 @@ apply plugin: "jacoco"
 
 android {
     namespace "com.outsystems.plugins.inappbrowser.osinappbrowserlib"
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         minSdk 26
-        targetSdk 34
+        targetSdk 35
         versionCode 1
         versionName "1.0"
 
@@ -98,12 +98,12 @@ repositories {
 }
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.13.1'
+    implementation 'androidx.core:core-ktx:1.15.0'
     implementation 'androidx.browser:browser:1.8.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.3'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.8.7'
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.webkit:webkit:1.11.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
     implementation 'androidx.activity:activity-ktx:1.9.3'
 
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4'
