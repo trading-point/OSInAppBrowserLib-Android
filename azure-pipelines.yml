@@ -22,7 +22,7 @@ steps:
     organization: 'outsystemsrd'
     scannerMode: 'CLI'
     configMode: 'file'
-- task: Gradle@2
+- task: Gradle@3
   displayName: Build Project
   inputs:
     workingDirectory: ''
