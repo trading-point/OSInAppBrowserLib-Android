@@ -86,6 +86,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
     companion object {
         const val WEB_VIEW_URL_EXTRA = "WEB_VIEW_URL_EXTRA"
+        const val WEB_VIEW_HEADERS_EXTRA = "WEB_VIEW_HEADERS_EXTRA"
         const val WEB_VIEW_OPTIONS_EXTRA = "WEB_VIEW_OPTIONS_EXTRA"
         const val DISABLED_ALPHA = 0.3f
         const val ENABLED_ALPHA = 1.0f
@@ -118,6 +119,12 @@ class OSIABWebViewActivity : AppCompatActivity() {
         } else {
             intent.extras?.getSerializable(WEB_VIEW_OPTIONS_EXTRA) as OSIABWebViewOptions
         }
+
+//        val headers: Map<String, String> =
+//            intent.extras?.getSerializable(WEB_VIEW_HEADERS_EXTRA) as Map<String, String>
+
+        val headers = hashMapOf<String, String>()
+        headers.put("auth-key-test", "123qweasdzxc")
 
         setContentView(R.layout.activity_web_view)
 
@@ -157,7 +164,10 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
         setupWebView()
         if (urlToOpen != null) {
-            webView.loadUrl(urlToOpen)
+//            webView.loadUrl(urlToOpen, headers)
+
+            val tempUrl = "https://www.whatismybrowser.com/detect/what-http-headers-is-my-browser-sending/"
+            webView.loadUrl(tempUrl, headers)
             showLoadingScreen()
         }
 

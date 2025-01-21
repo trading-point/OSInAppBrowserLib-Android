@@ -7,7 +7,7 @@ class OSIABRouterSpy(
     private val shouldOpenBrowser: Boolean,
     private val shouldCloseBrowser: Boolean
 ) : OSIABRouter<Boolean>, OSIABClosable {
-    override fun handleOpen(url: String, completionHandler: (Boolean) -> Unit) {
+    override fun handleOpen(url: String, headers: HashMap<String, String>, completionHandler: (Boolean) -> Unit) {
         completionHandler(shouldOpenBrowser)
     }
 

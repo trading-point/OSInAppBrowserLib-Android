@@ -30,6 +30,7 @@ class OSIABCustomTabsRouterAdapterTests {
     private val packageName = "com.outsystems.plugins.inappbrowser.osinappbrowserlib"
 
     private val uri = Uri.parse("https://www.outsystems.com/")
+    private val headers = hashMapOf<String, String>()
     private val options = OSIABCustomTabsOptions()
 
     @Test
@@ -46,7 +47,7 @@ class OSIABCustomTabsRouterAdapterTests {
                 customTabsSessionHelper = OSIABCustomTabsSessionHelperMock()
             )
 
-            sut.handleOpen(uri.toString()) { success ->
+            sut.handleOpen(uri.toString(), headers) { success ->
                 assertTrue(success)
             }
         }
@@ -67,7 +68,7 @@ class OSIABCustomTabsRouterAdapterTests {
                 customTabsSessionHelper = OSIABCustomTabsSessionHelperMock()
             )
 
-            sut.handleOpen("invalid_url") { success ->
+            sut.handleOpen("invalid_url", headers) { success ->
                 assertFalse(success)
             }
         }
@@ -97,7 +98,7 @@ class OSIABCustomTabsRouterAdapterTests {
             doThrow(RuntimeException("Exception")).`when`(context)
                 .startActivity(any(Intent::class.java))
 
-            sut.handleOpen(uri.toString()) { success ->
+            sut.handleOpen(uri.toString(), headers) { success ->
                 assertFalse(success)
             }
         }
@@ -122,7 +123,7 @@ class OSIABCustomTabsRouterAdapterTests {
                 customTabsSessionHelper = OSIABCustomTabsSessionHelperMock()
             )
 
-            sut.handleOpen(uri.toString()) { success ->
+            sut.handleOpen(uri.toString(), headers) { success ->
                 assertTrue(success)
             }
         }
@@ -147,7 +148,7 @@ class OSIABCustomTabsRouterAdapterTests {
                 customTabsSessionHelper = OSIABCustomTabsSessionHelperMock()
             )
 
-            sut.handleOpen(uri.toString()) { success ->
+            sut.handleOpen(uri.toString(), headers) { success ->
                 assertTrue(success)
             }
         }

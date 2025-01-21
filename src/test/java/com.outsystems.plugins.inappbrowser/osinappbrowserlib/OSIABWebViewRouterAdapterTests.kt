@@ -21,6 +21,7 @@ import org.robolectric.RobolectricTestRunner
 class OSIABWebViewRouterAdapterTests {
 
     private val url = "https://www.outsystems.com/"
+    private val headers = hashMapOf<String, String>()
     private val options = OSIABWebViewOptions()
 
     @Test
@@ -36,7 +37,7 @@ class OSIABWebViewRouterAdapterTests {
                 onBrowserFinished = {}, // do nothing
             )
 
-            sut.handleOpen(url) {
+            sut.handleOpen(url, headers) {
                 assertFalse(it)
             }
         }
@@ -58,7 +59,7 @@ class OSIABWebViewRouterAdapterTests {
                     fail()
                 }
             )
-            sut.handleOpen(url) {
+            sut.handleOpen(url, headers) {
                 assertTrue(it)
             }
         }
@@ -80,7 +81,7 @@ class OSIABWebViewRouterAdapterTests {
                     assertTrue(true) // onBrowserFinished was called
                 }
             )
-            sut.handleOpen(url) {
+            sut.handleOpen(url, headers) {
                 assertTrue(it)
             }
         }
