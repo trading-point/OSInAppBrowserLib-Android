@@ -16,6 +16,5 @@ data class OSIABWebViewOptions(
     @SerializedName("allowZoom") val allowZoom: Boolean = true,
     @SerializedName("hardwareBack") val hardwareBack: Boolean = true,
     @SerializedName("pauseMedia") val pauseMedia: Boolean = true,
-    @SerializedName("customUserAgent") val customUserAgent: String? = null,
-    @SerializedName("headers") val headers: Map<String, String>? = null
+    @SerializedName("customUserAgent") val customUserAgent: String? = null
 ) : OSIABOptions, Serializable

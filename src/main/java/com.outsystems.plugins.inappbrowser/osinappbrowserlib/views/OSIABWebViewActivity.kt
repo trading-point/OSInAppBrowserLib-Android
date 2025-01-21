@@ -119,8 +119,6 @@ class OSIABWebViewActivity : AppCompatActivity() {
             intent.extras?.getSerializable(WEB_VIEW_OPTIONS_EXTRA) as OSIABWebViewOptions
         }
 
-        val httpHeaders: Map<String, String>? = options.headers
-
         setContentView(R.layout.activity_web_view)
 
         //get elements in screen
@@ -159,11 +157,7 @@ class OSIABWebViewActivity : AppCompatActivity() {
 
         setupWebView()
         if (urlToOpen != null) {
-            if (httpHeaders != null) {
-                webView.loadUrl(urlToOpen, httpHeaders)
-            } else {
-                webView.loadUrl(urlToOpen)
-            }
+            webView.loadUrl(urlToOpen)
             showLoadingScreen()
         }
 
