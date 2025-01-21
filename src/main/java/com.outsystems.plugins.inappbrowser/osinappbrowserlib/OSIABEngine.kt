@@ -16,10 +16,10 @@ class OSIABEngine {
     fun openExternalBrowser(
         externalBrowserRouter: OSIABRouter<Boolean>,
         url: String,
-//        headers: HashMap<String, String>,
+        headers: HashMap<String, String>,
         completionHandler: (Boolean) -> Unit
     ) {
-        return externalBrowserRouter.handleOpen(url, hashMapOf<String, String>(), completionHandler)
+        return externalBrowserRouter.handleOpen(url, headers, completionHandler)
     }
 
     /**
@@ -33,10 +33,10 @@ class OSIABEngine {
     fun openCustomTabs(
         customTabsRouter: OSIABRouter<Boolean>,
         url: String,
-//        headers: HashMap<String, String>,
+        headers: HashMap<String, String>,
         completionHandler: (Boolean) -> Unit
     ) {
-        return customTabsRouter.handleOpen(url, hashMapOf<String, String>(), completionHandler)
+        return customTabsRouter.handleOpen(url, headers, completionHandler)
     }
 
     /**
@@ -49,9 +49,9 @@ class OSIABEngine {
     fun openWebView(
         webViewRouter: OSIABRouter<Boolean>,
         url: String,
-//        headers: HashMap<String, String>,
+        headers: HashMap<String, String>,
         completionHandler: (Boolean) -> Unit
     ) {
-        return webViewRouter.handleOpen(url, hashMapOf<String, String>(), completionHandler)
+        return webViewRouter.handleOpen(url, headers, completionHandler)
     }
 }
