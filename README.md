@@ -1,3 +1,9 @@
+# Testing locally
+
+1. Build > Make project
+2. The plugin is built into /build/outputs/aar
+3. Use this file as dependancy 
+
 # OSInAppBrowserLib
 
 The `OSInAppBrowserLib-Android` is a library built using `Kotlin` that provides a web browser view to load a web page within a Mobile Application. It behaves as a standard web browser and is useful to load untrusted content without risking your application's security.
