@@ -6,5 +6,5 @@ interface OSIABRouter<ReturnType> {
      * @param url URL to be opened.
      * @param completionHandler The callback with the result of opening the url.
      */
-    fun handleOpen(url: String, completionHandler: (ReturnType) -> Unit)
+    fun handleOpen(url: String, headers: Map<String, String>, completionHandler: (ReturnType) -> Unit)
 }

@@ -22,26 +22,27 @@ class OSIABExternalBrowserRouterAdapterTests {
     private val activityName = "TestActivity"
     private val packageName = "com.outsystems.plugins.inappbrowser.osinappbrowserlib"
     private val url = "https://www.outsystems.com/"
+    private val headers = hashMapOf<String, String>()
 
     @Test
     fun test_handleOpen_withInvalidURL_returnsFalse() {
         val context = mockContext(useValidURL = false, ableToOpenURL = false)
         val sut = OSIABExternalBrowserRouterAdapter(context)
-        sut.handleOpen(url) { assertFalse(it) }
+        sut.handleOpen(url, headers) { assertFalse(it) }
     }
 
     @Test
     fun test_handleOpen_withValidButNotAbleToOpenIt_returnsFalse() {
         val context = mockContext(useValidURL = true, ableToOpenURL = false)
         val sut = OSIABExternalBrowserRouterAdapter(context)
-        sut.handleOpen(url) { assertFalse(it) }
+        sut.handleOpen(url, headers) { assertFalse(it) }
     }
 
     @Test
     fun test_handleOpen_withValidAndAbleToOpenIt_returnsTrue() {
         val context = mockContext(useValidURL = true, ableToOpenURL = true)
         val sut = OSIABExternalBrowserRouterAdapter(context)
-        sut.handleOpen(url) { assertTrue(it) }
+        sut.handleOpen(url, headers) { assertTrue(it) }
     }
 
     private fun mockContext(useValidURL: Boolean, ableToOpenURL: Boolean = false): Context {
