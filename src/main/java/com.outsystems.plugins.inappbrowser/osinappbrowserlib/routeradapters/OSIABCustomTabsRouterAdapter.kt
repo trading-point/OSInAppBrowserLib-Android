@@ -140,7 +140,7 @@ class OSIABCustomTabsRouterAdapter(
         return builder.build()
     }
 
-    override fun handleOpen(url: String, headers: HashMap<String, String>, completionHandler: (Boolean) -> Unit) {
+    override fun handleOpen(url: String, headers: Map<String, String>, completionHandler: (Boolean) -> Unit) {
         lifecycleScope.launch {
             try {
                 val uri = Uri.parse(url)

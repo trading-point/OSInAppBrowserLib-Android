@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
+import java.util.HashMap
 import java.util.UUID
 
 class OSIABWebViewRouterAdapter(
@@ -68,7 +69,7 @@ class OSIABWebViewRouterAdapter(
      * @param url URL to be opened.
      * @param completionHandler The callback with the result of opening the url.
      */
-    override fun handleOpen(url: String, headers: HashMap<String, String>, completionHandler: (Boolean) -> Unit) {
+    override fun handleOpen(url: String, headers: Map<String, String>, completionHandler: (Boolean) -> Unit) {
         lifecycleScope.launch {
             try {
                 // Collect the browser events
@@ -98,7 +99,7 @@ class OSIABWebViewRouterAdapter(
                         putExtra(OSIABEvents.EXTRA_BROWSER_ID, browserId)
                         putExtra(WEB_VIEW_URL_EXTRA, url)
                         putExtra(WEB_VIEW_OPTIONS_EXTRA, options)
-                        putExtra(WEB_VIEW_HEADERS_EXTRA, headers)
+                        putExtra(WEB_VIEW_HEADERS_EXTRA, HashMap(headers))
                     }
                 )
 

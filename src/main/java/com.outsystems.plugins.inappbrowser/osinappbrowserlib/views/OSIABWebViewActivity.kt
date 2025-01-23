@@ -121,7 +121,8 @@ class OSIABWebViewActivity : AppCompatActivity() {
         }
 
         val headers: Map<String, String> =
-            intent.extras?.getSerializable(WEB_VIEW_HEADERS_EXTRA) as Map<String, String>
+            intent.extras?.getSerializable(WEB_VIEW_HEADERS_EXTRA) as? Map<String, String>
+                ?: emptyMap()
 
         setContentView(R.layout.activity_web_view)
 

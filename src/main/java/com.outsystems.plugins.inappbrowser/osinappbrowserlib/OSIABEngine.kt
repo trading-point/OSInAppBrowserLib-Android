@@ -1,9 +1,5 @@
 package com.outsystems.plugins.inappbrowser.osinappbrowserlib
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
-
 class OSIABEngine {
     /**
      * Trigger the external browser to open the passed `url`.
@@ -16,7 +12,7 @@ class OSIABEngine {
     fun openExternalBrowser(
         externalBrowserRouter: OSIABRouter<Boolean>,
         url: String,
-        headers: HashMap<String, String>,
+        headers: Map<String, String>,
         completionHandler: (Boolean) -> Unit
     ) {
         return externalBrowserRouter.handleOpen(url, headers, completionHandler)
@@ -33,7 +29,7 @@ class OSIABEngine {
     fun openCustomTabs(
         customTabsRouter: OSIABRouter<Boolean>,
         url: String,
-        headers: HashMap<String, String>,
+        headers: Map<String, String>,
         completionHandler: (Boolean) -> Unit
     ) {
         return customTabsRouter.handleOpen(url, headers, completionHandler)
@@ -49,7 +45,7 @@ class OSIABEngine {
     fun openWebView(
         webViewRouter: OSIABRouter<Boolean>,
         url: String,
-        headers: HashMap<String, String>,
+        headers: Map<String, String>,
         completionHandler: (Boolean) -> Unit
     ) {
         return webViewRouter.handleOpen(url, headers, completionHandler)
