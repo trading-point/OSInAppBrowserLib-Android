@@ -20,6 +20,7 @@ buildscript {
 
 plugins {
     id "org.sonarqube" version "3.5.0.2730"
+    id "maven-publish"
 }
 
 sonarqube {
@@ -107,13 +108,30 @@ android {
     }
 
     publishing {
-        singleVariant("release")
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
     }
 }
 
 repositories {
     google()
     mavenCentral()
+}
+
+publishing {
+    publications {
+        release(MavenPublication) {
+            groupId = 'com.github.trading-point'
+            artifactId = 'osinappbrowser-android'
+            version = '2.0'
+
+            afterEvaluate {
+                from components.release
+            }
+        }
+    }
 }
 
 dependencies {
