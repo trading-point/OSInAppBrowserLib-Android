@@ -118,6 +118,7 @@ android {
 repositories {
     google()
     mavenCentral()
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
@@ -145,4 +146,17 @@ dependencies {
 
 if (System.getenv("SHOULD_PUBLISH") == "true") {
     apply from: file("./scripts/publish-module.gradle")
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId = 'com.github.tradingpoint'
+                artifactId = 'osinappbrowserlib'
+                version = '2.0.0'
+            }
+        }
+    }
 }
