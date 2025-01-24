@@ -1,3 +1,0 @@
-package com.outsystems.plugins.inappbrowser.osinappbrowserlib.models
-
-interface OSIABOptions

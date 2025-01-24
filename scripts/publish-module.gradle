@@ -43,11 +43,11 @@ afterEvaluate {
                 pom {
                     name = 'osinappbrowser-android'
                     description = 'InAppBrowser Android Lib'
-                    url = 'https://github.com/OutSystems/OSInAppBrowserLib-Android'
+                    url = 'https://github.com/trading-point/OSInAppBrowserLib-Android'
                     licenses {
                         license {
                             name = 'License'
-                            url = 'https://github.com/OutSystems/OSInAppBrowserLib-Android/blob/main/LICENSE'
+                            url = 'https://github.com/trading-point/OSInAppBrowserLib-Android/blob/main/LICENSE'
                         }
                     }
                     developers {

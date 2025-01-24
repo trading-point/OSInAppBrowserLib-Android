@@ -41,7 +41,7 @@ apply plugin: "kotlin-android"
 apply plugin: "jacoco"
 
 android {
-    namespace "com.outsystems.plugins.inappbrowser.osinappbrowserlib"
+    namespace "com.tradingpoint.plugins.inappbrowser.osinappbrowserlib"
     compileSdk 35
 
     defaultConfig {
