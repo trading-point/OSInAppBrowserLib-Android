@@ -44,7 +44,7 @@ apply plugin: "maven-publish"
 group = 'com.github.tradingpoint'
 
 android {
-    namespace "com.tradingpoint.plugins.inappbrowser.osinappbrowserlib"
+    namespace "com.outsystems.plugins.inappbrowser.osinappbrowserlib"
     compileSdk 35
 
     defaultConfig {
