@@ -111,30 +111,13 @@ android {
     }
 
     publishing {
-        singleVariant("release") {
-            withSourcesJar()
-            withJavadocJar()
-        }
+        singleVariant("release")
     }
 }
 
 repositories {
     google()
     mavenCentral()
-}
-
-publishing {
-    publications {
-        release(MavenPublication) {
-            groupId = 'com.github.trading-point'
-            artifactId = 'osinappbrowser-android'
-            version = '2.0'
-
-            afterEvaluate {
-                from components.release
-            }
-        }
-    }
 }
 
 dependencies {
