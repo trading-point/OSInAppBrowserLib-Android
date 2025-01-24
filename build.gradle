@@ -20,7 +20,6 @@ buildscript {
 
 plugins {
     id "org.sonarqube" version "3.5.0.2730"
-    id "maven-publish"
 }
 
 sonarqube {
@@ -39,6 +38,10 @@ if (System.getenv("SHOULD_PUBLISH") == "true") {
 apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 apply plugin: "jacoco"
+
+apply plugin: "maven-publish"
+
+group = 'com.github.tradingpoint'
 
 android {
     namespace "com.tradingpoint.plugins.inappbrowser.osinappbrowserlib"
