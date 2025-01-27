@@ -2,7 +2,28 @@
 
 1. Build > Make project
 2. The plugin is built into /build/outputs/aar
-3. Use this file as dependancy 
+3. Use this file as dependancy
+
+# Adding to project
+
+Add it in your root build.gradle at the end of repositories:
+
+```
+dependencyResolutionManagement {
+	repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+	repositories {
+		mavenCentral()
+		maven { url 'https://jitpack.io' }
+	}
+}
+```
+
+Add the dependency
+```
+implementation 'com.github.trading-point:OSInAppBrowserLib-Android:v2-headers'
+```
+
+# OG README BELOW
 
 # OSInAppBrowserLib
 
