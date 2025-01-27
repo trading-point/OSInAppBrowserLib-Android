@@ -1,0 +1,3 @@
+package com.tradingpoint.plugins.inappbrowser.osinappbrowserlib.models
+
+interface OSIABOptions

@@ -43,11 +43,11 @@ afterEvaluate {
                 pom {
                     name = 'osinappbrowser-android'
                     description = 'InAppBrowser Android Lib'
-                    url = 'https://github.com/OutSystems/OSInAppBrowserLib-Android'
+                    url = 'https://github.com/tradin-gpoint/OSInAppBrowserLib-Android'
                     licenses {
                         license {
                             name = 'License'
-                            url = 'https://github.com/OutSystems/OSInAppBrowserLib-Android/blob/main/LICENSE'
+                            url = 'https://github.com/tradin-gpoint/OSInAppBrowserLib-Android/blob/main/LICENSE'
                         }
                     }
                     developers {
@@ -59,9 +59,9 @@ afterEvaluate {
 
                     // Version Control Info
                     scm {
-                        connection = 'scm:git:github.com:OutSystems/OSInAppBrowserLib-Android.git'
-                        developerConnection = 'scm:git:ssh://github.com:OutSystems/OSInAppBrowserLib-Android.git'
-                        url = 'https://github.com/OutSystems/OSInAppBrowserLib-Android/tree/main'
+                        connection = 'scm:git:github.com:tradin-gpoint/OSInAppBrowserLib-Android.git'
+                        developerConnection = 'scm:git:ssh://github.com:tradin-gpoint/OSInAppBrowserLib-Android.git'
+                        url = 'https://github.com/tradin-gpoint/OSInAppBrowserLib-Android/tree/main'
                     }
                 }
             }
